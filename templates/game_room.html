@@ -1,17 +1,67 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Game Room</title>
+    <link rel="stylesheet" href="{% static 'gamestyle.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-<h1>Game Room: {{ room.name }}</h1>
-<p>Creator: {{ room.creator_room.username }}</p>
-<p>People in the room:</p>
-<ul>
-    {% for person in room.people.all %}
-        <li>{{ person.username }}</li>
-    {% endfor %}
-</ul>
+<nav class="navbar">
+    <div class="logo">
+        <img src="{% static 'image/LEGO_logo.svg.png' %}" alt="Bunker Logo">
+        <span>BUNKER ONLINE</span>
+    </div>
+    <div class="menu">
+        <a href="{% url 'index' %}" class="active">Главная</a>
+        <a href="#rules">Правила игры</a>
+        <a href="#wiki">Вики</a>
+        <a href="#updates">Обновления</a>
+    </div>
+</nav>
+<main>
+    <div class="parallax" style="background-image: url('{% static 'image/giphy.gif' %}');">
+        <div class="content">
+            <h1>Ожидание игроков</h1>
+            {% if is_creator %}
+                <button class="close-room-btn" onclick="window.location.href='{% url 'index' %}'">Закрыть комнату!</button>
+            {% endif %}
+            <p>Чтобы начать игру нужно как минимум 6 человек. (<span id="player-count">{{ room.people.count }}</span>/15)</p>
+            <p>http://bunker-online.com/game?room_id={{ room.name }}</p>
+            <div class="players-list">
+                <h2>Кандидаты в бункер</h2>
+                <ul id="players-list">
+                    {% for person in room.people.all %}
+                        <li>{{ person.username }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    function updatePlayerCount() {
+        $.ajax({
+            url: '{% url "number_of_people" room.name %}',
+            method: 'GET',
+            success: function(data) {
+                $('#player-count').text(data.count);
+                var playersList = $('#players-list');
+                playersList.empty();
+                data.players.forEach(function(player) {
+                    playersList.append('<li>' + player.username + '</li>');
+                });
+            },
+            error: function(error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    // Update player count every 5 seconds
+    setInterval(updatePlayerCount, 2000);
+
+</script>
 </body>
 </html>

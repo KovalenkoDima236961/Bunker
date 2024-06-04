@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 import random
 from main.models import Room
@@ -26,6 +27,8 @@ def game(request):
         room = Room.objects.create(name=name, creator_room=creator)
         room.people.add(creator)
 
+        request.session['username'] = username
+
         return redirect('game_room', room_id=name)
 
     return render(request, 'index.html')
@@ -33,7 +36,13 @@ def game(request):
 
 def game_room(request, room_id):
     room = get_object_or_404(Room, name=room_id)
-    return render(request, 'game_room.html', {'room': room})
+    username = request.session.get('username')
+    if not username:
+        messages.error(request, 'Please enter a username')
+        return redirect('index')
+    user = get_object_or_404(User, username=username)
+    is_creator = room.creator_room == user
+    return render(request, 'game_room.html', {'room': room, 'username': username, 'is_creator': is_creator})
 
 
 def join_room(request):
@@ -50,9 +59,18 @@ def join_room(request):
                 user = User.objects.create_user(username=username)
 
             room.people.add(user)
-            return redirect('game_room', room_id=room.id)
+
+            request.session['username'] = username
+
+            return redirect('game_room', room_id=room_name)
         else:
             messages.error(request, 'Room does not exist')
             return redirect('index')
 
     return redirect('index')
+
+
+def number_of_people(request, room_id):
+    room = get_object_or_404(Room, name=room_id)
+    players = list(room.people.values('username'))
+    return JsonResponse({'count': room.people.count(), 'players': players})

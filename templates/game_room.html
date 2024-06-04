@@ -25,7 +25,7 @@
         <div class="content">
             <h1>Ожидание игроков</h1>
             {% if is_creator %}
-                <button class="close-room-btn" onclick="window.location.href='{% url 'index' %}'">Закрыть комнату!</button>
+                <button class="close-room-btn" id="close-room-btn">Закрыть комнату!</button>
             {% endif %}
             <p>Чтобы начать игру нужно как минимум 6 человек. (<span id="player-count">{{ room.people.count }}</span>/15)</p>
             <p>http://bunker-online.com/game?room_id={{ room.name }}</p>
@@ -59,8 +59,25 @@
         });
     }
 
-    // Update player count every 5 seconds
+    // Update player count every 2 seconds
     setInterval(updatePlayerCount, 2000);
+
+    $('#close-room-btn').click(function () {
+        $.ajax({
+            url: '{% url 'close_room' room.name %}',
+            method: 'POST',
+            success: function (data){
+                if(data.status === 'success'){
+                    window.location.href = '{% url 'index' %}'
+                }else {
+                    alert(data.message);
+                }
+            },
+            error: function (error){
+                console.error('Error: ', error)
+            }
+        })
+    })
 
 </script>
 </body>

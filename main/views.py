@@ -18,7 +18,7 @@ def index(request):
 def game(request):
     if request.method == 'POST':
         username = request.POST['username']
-        creator = User.objects.create_user(username=username)
+        creator = User.objects.create_user(username=username)  # Player
 
         name = generate_random_name()
         while Room.objects.filter(name=name).exists():
@@ -74,3 +74,9 @@ def number_of_people(request, room_id):
     room = get_object_or_404(Room, name=room_id)
     players = list(room.people.values('username'))
     return JsonResponse({'count': room.people.count(), 'players': players})
+
+
+def close_room(request, room_id):
+    # Add return response
+    (Room.objects.filter(name=room_id).delete())
+    return JsonResponse

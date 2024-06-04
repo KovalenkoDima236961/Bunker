@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game Room</title>
+</head>
+<body>
+<h1>Game Room: {{ room.name }}</h1>
+<p>Creator: {{ room.creator_room.username }}</p>
+<p>People in the room:</p>
+<ul>
+    {% for person in room.people.all %}
+        <li>{{ person.username }}</li>
+    {% endfor %}
+</ul>
+</body>
+</html>

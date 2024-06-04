@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="{% static 'image/LEGO_logo.svg.png' %}" alt="Bunker Logo">
+            <span>BUNKER ONLINE</span>
+        </div>
+        <div class="menu">
+            <a href="#home" class="active">Главная</a>
+            <a href="#rules">Правила игры</a>
+            <a href="#wiki">Вики</a>
+            <a href="#updates">Обновления</a>
+        </div>
+    </nav>
+    <main>
+        <div class="parallax" style="background-image: url('static/image/giphy.gif');"></div>
+
+        <div class="content">
+            <h1>BunkerOnline</h1>
+            <p>Добро пожаловать на сайт игры «Бункер Онлайн»</p>
+            <p>В игре ты получаешь уникального персонажа, которым постараешься доказать всем, что именно ты должен попасть в бункер, чтобы спастись! Ты должен быть готов к любым препятствиям. Остальные игроки, пытающиеся выжить, будут доказывать обратное...</p>
+        </div>
+        <div class="content">
+            <div class="form-container">
+                <h2>Создание игровой комнаты</h2>
+                <form method="post" action="">
+                    <label for="username">Ваше имя *</label>
+                    <input type="text" id="username" name="username" required>
+                    <div class="g-recaptcha" data-sitekey="your-site-key"></div>
+                    <input type="submit" value="Создать игру!">
+                </form>
+            </div>
+        </div>
+
+    </main>
+</body>
+</html>

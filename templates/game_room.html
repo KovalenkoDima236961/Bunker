@@ -26,14 +26,21 @@
             <h1>Ожидание игроков</h1>
             {% if is_creator %}
                 <button class="close-room-btn" id="close-room-btn">Закрыть комнату!</button>
+            {% else %}
+                <button class="close-room-btn" id="exit-room-btn">Вийти з кімнати</button>
             {% endif %}
-            <p>Чтобы начать игру нужно как минимум 6 человек. (<span id="player-count">{{ room.people.count }}</span>/15)</p>
+            <p>Чтобы начать игру нужно как минимум 6 человек. (<span id="player-count">{{ room.players.count }}</span>/15)</p>
             <p>http://bunker-online.com/game?room_id={{ room.name }}</p>
             <div class="players-list">
                 <h2>Кандидаты в бункер</h2>
                 <ul id="players-list">
-                    {% for person in room.people.all %}
-                        <li>{{ person.username }}</li>
+                    {% for player in room.players.all %}
+                        <li>
+                            {{ player.player_name }}
+                            {% if is_creator %}
+                                <button class="remove-player-btn" data-player-id="{{ player.id }}">✖</button>
+                            {% endif %}
+                        </li>
                     {% endfor %}
                 </ul>
             </div>
@@ -47,10 +54,15 @@
             method: 'GET',
             success: function(data) {
                 $('#player-count').text(data.count);
-                var playersList = $('#players-list');
+                let playersList = $('#players-list');
                 playersList.empty();
                 data.players.forEach(function(player) {
-                    playersList.append('<li>' + player.username + '</li>');
+                    let playerItem = '<li>' + player.player_name;
+                    {% if is_creator %}
+                        playerItem += ' <button class="remove-player-btn" data-player-id="' + player.player_name + '">✖</button>';
+                    {% endif %}
+                    playerItem += '</li>';
+                    playersList.append(playerItem);
                 });
             },
             error: function(error) {
@@ -59,26 +71,100 @@
         });
     }
 
-    // Update player count every 2 seconds
-    setInterval(updatePlayerCount, 2000);
-
-    $('#close-room-btn').click(function () {
+    function checkRoomExists() {
         $.ajax({
-            url: '{% url 'close_room' room.name %}',
+            url: '{% url "game_room" room.name %}',
+            method: 'GET',
+            statusCode: {
+                404: function() {
+                    window.location.href = '{% url "index" %}';
+                }
+            }
+        });
+    }
+
+    setInterval(updatePlayerCount, 1000);
+    setInterval(checkRoomExists, 1000);
+    setInterval(checkIfPlayerStillInRoom, 1000);
+
+    $('#exit-room-btn').click(function (){
+        $.ajax({
+            url: '{% url "exit_room" room.name %}',
             method: 'POST',
-            success: function (data){
-                if(data.status === 'success'){
-                    window.location.href = '{% url 'index' %}'
-                }else {
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(data) {
+                if (data.status === 'success') {
+                    window.location.href = '{% url "index" %}';
+                } else {
                     alert(data.message);
                 }
             },
-            error: function (error){
-                console.error('Error: ', error)
+            error: function(error) {
+                console.error('Error:', error);
             }
         })
     })
 
+    function checkIfPlayerStillInRoom() {
+        $.ajax({
+            url: '{% url "check_player_in_room" room.name %}',
+            method: 'GET',
+            success: function(data) {
+                if (data.status === 'removed') {
+                    window.location.href = '{% url "index" %}';
+                }
+            },
+            error: function(error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    $('#close-room-btn').click(function() {
+        $.ajax({
+            url: '{% url "close_room" room.name %}',
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(data) {
+                if (data.status === 'success') {
+                    window.location.href = '{% url "index" %}';
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function(error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+
+    $(document).on('click', '.remove-player-btn', function() {
+        const playerId = $(this).data('player-id');
+        $.ajax({
+            url: '{% url "remove_player" room.name %}',
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            data: {
+                'player_id': playerId
+            },
+            success: function(data) {
+                if (data.status === 'success') {
+                    updatePlayerCount();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function(error) {
+                console.error('Error:', error);
+            }
+        });
+    });
 </script>
 </body>
 </html>

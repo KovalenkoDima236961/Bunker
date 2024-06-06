@@ -33,7 +33,7 @@
             <form method="post" action="{% url 'game' %}">
                 {% csrf_token %}
                 <label for="username">Ваше имя *</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="player_name" required>
                 <div class="g-recaptcha" data-sitekey="your-site-key"></div>
                 <input type="submit" value="Создать игру!">
             </form>
@@ -47,7 +47,7 @@
                 <label for="room_name">Имя комнаты *</label>
                 <input type="text" id="room_name" name="room_name" required>
                 <label for="username">Ваше имя *</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="player_name" required>
                 <input type="submit" value="Присоединиться">
             </form>
         </div>

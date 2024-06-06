@@ -71,6 +71,19 @@ h1, h2 {
     margin-bottom: 20px;
 }
 
+.exit-room-btn {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+.exit-room-btn:hover {
+    background-color: #cc0000;
+}
 .close-room-btn:hover {
     background-color: #cc0000;
 }

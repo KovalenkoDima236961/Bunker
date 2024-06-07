@@ -26,8 +26,22 @@ class Player(models.Model):
     phobia = models.ForeignKey('Phobia', on_delete=models.SET_NULL, null=True, blank=True)
     inventory = models.ForeignKey('Inventory', on_delete=models.SET_NULL, null=True, blank=True)
     more_information = models.ForeignKey('MoreInformation', on_delete=models.SET_NULL, null=True, blank=True)
-    special_feature1 = models.ForeignKey('SpecialFeature', on_delete=models.SET_NULL, null=True, blank=True, related_name='special_feature1_players')
-    special_feature2 = models.ForeignKey('SpecialFeature', on_delete=models.SET_NULL, null=True, blank=True, related_name='special_feature2_players')
+    special_feature1 = models.ForeignKey('SpecialFeature', on_delete=models.SET_NULL, null=True, blank=True,
+                                         related_name='special_feature1_players')
+    special_feature2 = models.ForeignKey('SpecialFeature', on_delete=models.SET_NULL, null=True, blank=True,
+                                         related_name='special_feature2_players')
+
+    is_gender_open = models.BooleanField(default=False)
+    is_body_build_open = models.BooleanField(default=False)
+    is_human_trait_open = models.BooleanField(default=False)
+    is_speciality_open = models.BooleanField(default=False)
+    is_health_open = models.BooleanField(default=False)
+    is_hobby_open = models.BooleanField(default=False)
+    is_phobia_open = models.BooleanField(default=False)
+    is_inventory_open = models.BooleanField(default=False)
+    is_more_information_open = models.BooleanField(default=False)
+    is_special_feature1_open = models.BooleanField(default=False)
+    is_special_feature2_open = models.BooleanField(default=False)
 
     def __str__(self):
         return self.player_name
@@ -144,4 +158,3 @@ class Cataclysm(models.Model):
 
     def __str__(self):
         return f"Cataclysm {self.year}: {self.description[:50]}..."
-

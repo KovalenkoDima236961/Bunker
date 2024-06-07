@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="{% static 'game_field.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
 <nav class="navbar">
@@ -57,57 +58,57 @@
             <tr>
                 <th>Пол</th>
                 <td>{{ player.gender.name }}</td>
-                <td><button class="locked" data-info="gender">🔒</button></td>
+                <td><button class="{% if player.is_gender_open %}unlocked{% else %}locked{% endif %}" data-info="gender" data-value="{{ player.gender.name }}">{% if player.is_gender_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Телосложение</th>
                 <td>{{ player.body_build.name }}</td>
-                <td><button class="locked" data-info="body_build">🔒</button></td>
+                <td><button class="{% if player.is_body_build_open %}unlocked{% else %}locked{% endif %}" data-info="body_build" data-value="{{ player.body_build.name }}">{% if player.is_body_build_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Человеческая черта</th>
                 <td>{{ player.a_human_trait.name }}</td>
-                <td><button class="locked" data-info="a_human_trait">🔒</button></td>
+                <td><button class="{% if player.is_human_trait_open %}unlocked{% else %}locked{% endif %}" data-info="a_human_trait" data-value="{{ player.a_human_trait.name }}">{% if player.is_human_trait_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Специальность</th>
                 <td>{{ player.speciality.name }}</td>
-                <td><button class="locked" data-info="speciality">🔒</button></td>
+                <td><button class="{% if player.is_speciality_open %}unlocked{% else %}locked{% endif %}" data-info="speciality" data-value="{{ player.speciality.name }}">{% if player.is_speciality_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Здоровье</th>
                 <td>{{ player.health.name }}</td>
-                <td><button class="locked" data-info="health">🔒</button></td>
+                <td><button class="{% if player.is_health_open %}unlocked{% else %}locked{% endif %}" data-info="health" data-value="{{ player.health.name }}">{% if player.is_health_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Хобби / Увлечение</th>
                 <td>{{ player.hobby.name }}</td>
-                <td><button class="locked" data-info="hobby">🔒</button></td>
+                <td><button class="{% if player.is_hobby_open %}unlocked{% else %}locked{% endif %}" data-info="hobby" data-value="{{ player.hobby.name }}">{% if player.is_hobby_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Фобия / Страх</th>
                 <td>{{ player.phobia.name }}</td>
-                <td><button class="locked" data-info="phobia">🔒</button></td>
+                <td><button class="{% if player.is_phobia_open %}unlocked{% else %}locked{% endif %}" data-info="phobia" data-value="{{ player.phobia.name }}">{% if player.is_phobia_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Инвентарь</th>
                 <td>{{ player.inventory.name }}</td>
-                <td><button class="locked" data-info="inventory">🔒</button></td>
+                <td><button class="{% if player.is_inventory_open %}unlocked{% else %}locked{% endif %}" data-info="inventory" data-value="{{ player.inventory.name }}">{% if player.is_inventory_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Дополнительные сведения</th>
                 <td>{{ player.more_information.name }}</td>
-                <td><button class="locked" data-info="more_information">🔒</button></td>
+                <td><button class="{% if player.is_more_information_open %}unlocked{% else %}locked{% endif %}" data-info="more_information" data-value="{{ player.more_information.name }}">{% if player.is_more_information_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Special Feature 1</th>
                 <td>{{ player.special_feature1.name }}</td>
-                <td><button class="locked" data-info="special_feature1">🔒</button></td>
+                <td><button class="{% if player.is_special_feature1_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature1" data-value="{{ player.special_feature1.name }}">{% if player.is_special_feature1_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Special Feature 2</th>
                 <td>{{ player.special_feature2.name }}</td>
-                <td><button class="locked" data-info="special_feature2">🔒</button></td>
+                <td><button class="{% if player.is_special_feature2_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature2" data-value="{{ player.special_feature2.name }}">{% if player.is_special_feature2_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
         </table>
         <h3>Желающие попасть в бункер ({{ room.players.count }}/{{ bunker.capacity }})</h3>
@@ -130,15 +131,15 @@
             {% for player in room.players.all %}
                 <tr>
                     <td>{{ player.player_name }}</td>
-                    <td class="locked" data-info="gender">🔒</td>
-                    <td class="locked" data-info="body_build">🔒</td>
-                    <td class="locked" data-info="a_human_trait">🔒</td>
-                    <td class="locked" data-info="speciality">🔒</td>
-                    <td class="locked" data-info="health">🔒</td>
-                    <td class="locked" data-info="hobby">🔒</td>
-                    <td class="locked" data-info="phobia">🔒</td>
-                    <td class="locked" data-info="inventory">🔒</td>
-                    <td class="locked" data-info="more_information">🔒</td>
+                    <td class="{% if player.is_gender_open %}unlocked{% else %}locked{% endif %}" data-info="gender">{% if player.is_gender_open %}{{ player.gender.name }}{% else %} {% endif %}</td>
+                    <td class="{% if player.is_body_build_open %}unlocked{% else %}locked{% endif %}" data-info="body_build">{% if player.is_body_build_open %}{{ player.body_build.name }}{% else %} {% endif %}</td>
+                    <td class="{% if player.is_human_trait_open %}unlocked{% else %}locked{% endif %}" data-info="a_human_trait">{% if player.is_human_trait_open %}{{ player.a_human_trait.name }}{% else %} {% endif %}</td>
+                    <td class="{% if player.is_speciality_open %}unlocked{% else %}locked{% endif %}" data-info="speciality">{% if player.is_speciality_open %}{{ player.speciality.name }}{% else %} {% endif %}</td>
+                    <td class="{% if player.is_health_open %}unlocked{% else %}locked{% endif %}" data-info="health">{% if player.is_health_open %}{{ player.health.name }}{% else %} {% endif %}</td>
+                    <td class="{% if player.is_hobby_open %}unlocked{% else %}locked{% endif %}" data-info="hobby">{% if player.is_hobby_open %}{{ player.hobby.name }}{% else %} {% endif %}</td>
+                    <td class="{% if player.is_phobia_open %}unlocked{% else %}locked{% endif %}" data-info="phobia">{% if player.is_phobia_open %}{{ player.phobia.name }}{% else %} {% endif %}</td>
+                    <td class="{% if player.is_inventory_open %}unlocked{% else %}locked{% endif %}" data-info="inventory">{% if player.is_inventory_open %}{{ player.inventory.name }}{% else %} {% endif %}</td>
+                    <td class="{% if player.is_more_information_open %}unlocked{% else %}locked{% endif %}" data-info="more_information">{% if player.is_more_information_open %}{{ player.more_information.name }}{% else %} {% endif %}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -155,9 +156,9 @@
             <tbody id="special-features-info">
             {% for player in room.players.all %}
                 <tr>
-                    <td>{{ player.player_name }}</td>
-                    <td class="locked" data-info="special_feature1">🔒</td>
-                    <td class="locked" data-info="special_feature2">🔒</td>
+                    <td>{{ forloop.counter }} | {{ player.player_name }}</td>
+                    <td class="{% if player.is_special_feature1_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature1">{% if player.is_special_feature1_open %}{{ player.special_feature1.name }}{% else %} {% endif %}</td>
+                    <td class="{% if player.is_special_feature2_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature2">{% if player.is_special_feature2_open %}{{ player.special_feature2.name }}{% else %} {% endif %}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -165,12 +166,46 @@
     </div>
 </main>
 <script>
+    const roomName = "{{ room.name }}";
+    const ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    const chatSocket = new WebSocket(
+        ws_scheme + '://' + window.location.host +
+        '/ws/game/' + roomName + '/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const message = data['message'];
+        const infoType = data['info_type'];
+        const infoValue = data['info_value'];
+
+        $('#players-info').find('td[data-info="' + infoType + '"]').each(function() {
+            if ($(this).closest('tr').find('td:first').text() !== '{{ player.player_name }}') {
+                $(this).removeClass('locked').text(infoValue);
+            }
+        });
+
+        if (infoType.includes('special_feature')) {
+            $('#special-features-info').find('td[data-info="' + infoType + '"]').each(function() {
+                if ($(this).closest('tr').find('td:first').text() !== '{{ player.player_name }}') {
+                    $(this).removeClass('locked').text(infoValue);
+                }
+            });
+        }
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
     $(document).ready(function() {
-        $('.locked').click(function() {
+        $('.locked, .unlocked').click(function() {
             let $button = $(this);
             let infoType = $button.data('info');
+            let isLocked = $button.hasClass('locked');
             let infoValue = $button.closest('tr').find('td').eq(1).text();
-            
+
+            // Update the corresponding cells in the lower table
             if (infoType.includes('special_feature')) {
                 $('#special-features-info').find('td[data-info="' + infoType + '"]').each(function() {
                     if ($(this).closest('tr').find('td:first').text() !== '{{ player.player_name }}') {
@@ -184,10 +219,16 @@
                     }
                 });
             }
-            
-            $button.removeClass('locked').addClass('unlocked').text('🔓');
+
+            // Change the lock/unlock state of the button
+            if (isLocked) {
+                $button.removeClass('locked').addClass('unlocked').text('🔓');
+            } else {
+                $button.removeClass('unlocked').addClass('locked').text('🔒');
+            }
         });
     });
 </script>
+
 </body>
 </html>

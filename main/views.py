@@ -188,8 +188,6 @@ def create_cataclysm():
     return cataclysm_instance
 
 
-# TODO Зробити так, щоб не будло видно
-
 def start_game(request, room_id):
     room = get_object_or_404(Room, name=room_id)
 
@@ -210,14 +208,70 @@ def start_game(request, room_id):
     player_name = request.session.get('player_name')
     player = get_object_or_404(Player, player_name=player_name, room=room)
 
+    is_creator = room.creator.player_name == player_name
+
     return render(request, 'game_field.html', {
         'room': room,
         'player': player,
         'bunker': room.bunker,
-        'cataclysm': room.cataclysm
+        'cataclysm': room.cataclysm,
+        'is_creator': is_creator,
     })
 
 
 def check_game_started(request, room_id):
     room = get_object_or_404(Room, name=room_id)
     return JsonResponse({'is_game_started': room.is_game_started})
+
+
+# def update_player_info(request):
+#     if request.method == 'POST':
+#         player_name = request.POST.get('player_name')
+#         info_type = request.POST.get('info_type')
+#         player = Player.objects.get(player_name=player_name)
+#
+#         if info_type == 'gender':
+#             player.is_gender_open = True
+#         elif info_type == 'body_build':
+#             player.is_body_build_open = True
+#         elif info_type == 'a_human_trait':
+#             player.is_human_trait_open = True
+#         elif info_type == 'speciality':
+#             player.is_speciality_open = True
+#         elif info_type == 'health':
+#             player.is_health_open = True
+#         elif info_type == 'hobby':
+#             player.is_hobby_open = True
+#         elif info_type == 'phobia':
+#             player.is_phobia_open = True
+#         elif info_type == 'inventory':
+#             player.is_inventory_open = True
+#         elif info_type == 'more_information':
+#             player.is_more_information_open = True
+#         elif info_type == 'special_feature1':
+#             player.is_special_feature1_open = True
+#         elif info_type == 'special_feature2':
+#             player.is_special_feature2_open = True
+#
+#         player.save()
+#         return JsonResponse({'status': 'success'})
+#     return JsonResponse({'status': 'fail'})
+
+def update_player_info(request):
+    player_name = request.POST.get('player_name')
+    info_type = request.POST.get('info_type')
+
+    player = get_object_or_404(Player, player_name=player_name)
+    setattr(player, f'is_{info_type}_open', True)
+    player.save()
+
+    return JsonResponse({'status': 'success'})
+
+
+def vote_against_player(request):
+    if request.method == 'POST':
+        voted_player_id = request.POST.get('voted_player')
+        voted_player = Player.objects.get(player_name=voted_player_id)
+
+        return redirect('game_room', room_name=voted_player.room.name)
+    return JsonResponse({'status': 'fail'})

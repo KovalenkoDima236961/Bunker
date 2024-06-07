@@ -26,32 +26,49 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        info_type = text_data_json['info_type']
-        info_value = text_data_json['info_value']
-        player_name = text_data_json['player_name']
 
-        # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'game_message',
+        if message == 'update':
+            info_type = text_data_json['info_type']
+            info_value = text_data_json['info_value']
+            player_name = text_data_json['player_name']
+
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_message',
+                    'message': 'update',
+                    'info_type': info_type,
+                    'info_value': info_value,
+                    'player_name': player_name
+                }
+            )
+
+        elif message in ['start_voting', 'end_voting']:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_message',
+                    'message': message,
+                }
+            )
+
+    async def game_message(self, event):
+        message = event['message']
+
+        if message == 'update':
+            info_type = event['info_type']
+            info_value = event['info_value']
+            player_name = event['player_name']
+
+            # Send message to WebSocket
+            await self.send(text_data=json.dumps({
                 'message': message,
                 'info_type': info_type,
                 'info_value': info_value,
                 'player_name': player_name
-            }
-        )
-
-    async def game_message(self, event):
-        message = event['message']
-        info_type = event['info_type']
-        info_value = event['info_value']
-        player_name = event['player_name']
-
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps({
-            'message': message,
-            'info_type': info_type,
-            'info_value': info_value,
-            'player_name': player_name
-        }))
+            }))
+        elif message in ['start_voting', 'end_voting']:
+            # Send message to WebSocket
+            await self.send(text_data=json.dumps({
+                'message': message
+            }))

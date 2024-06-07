@@ -163,6 +163,28 @@
             {% endfor %}
             </tbody>
         </table>
+        {% if is_creator %}
+            <div id="admin-panel">
+                <h3>Адмін панель</h3>
+                <form id="admin-actions" method="post">
+                    {% csrf_token %}
+                    <button type="button" id="start-voting">Запустити голосування</button>
+                    <button type="button" id="end-voting" style="display:none;">Закінчити голосування</button>
+                </form>
+            </div>
+        {% endif %}
+        <div id="voting-section" style="display:none;">
+            <h3>Голосование против игрока</h3>
+            <form id="voting-form">
+                {% for player in room.players.all %}
+                    <div>
+                        <input type="radio" id="vote_{{ player.id }}" name="vote" value="{{ player.id }}">
+                        <label for="vote_{{ player.id }}">{{ player.player_name }}</label>
+                    </div>
+                {% endfor %}
+                <button type="submit">Проголосовать</button>
+            </form>
+        </div>
     </div>
 </main>
 <script>
@@ -180,14 +202,24 @@
         const infoValue = data['info_value'];
         const playerName = data['player_name'];
 
-        $('#players-info').find('tr[data-player="' + playerName + '"]').find('td[data-info="' + infoType + '"]').each(function() {
-            $(this).removeClass('locked').addClass('unlocked').text(infoValue);
-        });
-
-        if (infoType.includes('special_feature')) {
-            $('#special-features-info').find('tr[data-player="' + playerName + '"]').find('td[data-info="' + infoType + '"]').each(function() {
+        if (message === 'update') {
+            $('#players-info').find('tr[data-player="' + playerName + '"]').find('td[data-info="' + infoType + '"]').each(function() {
                 $(this).removeClass('locked').addClass('unlocked').text(infoValue);
             });
+
+            if (infoType.includes('special_feature')) {
+                $('#special-features-info').find('tr[data-player="' + playerName + '"]').find('td[data-info="' + infoType + '"]').each(function() {
+                    $(this).removeClass('locked').addClass('unlocked').text(infoValue);
+                });
+            }
+        } else if (message === 'start_voting') {
+            $('#voting-section').show();
+            $('#start-voting').hide();
+            $('#end-voting').show();
+        } else if (message === 'end_voting') {
+            $('#voting-section').hide();
+            $('#start-voting').show();
+            $('#end-voting').hide();
         }
     };
 
@@ -202,7 +234,6 @@
             let infoValue = $button.data('value');
             let playerName = "{{ player.player_name }}";
 
-            // Check if already unlocked, prevent from locking again
             if ($button.hasClass('unlocked')) {
                 return;
             }
@@ -215,9 +246,40 @@
                 'player_name': playerName
             }));
 
-            // Change the lock/unlock state of the button
             $button.removeClass('locked').addClass('unlocked').text('🔓');
+
+            // Send AJAX request to update the database
+            $.ajax({
+                url: '{% url "update_player_info" %}',
+                method: 'POST',
+                data: {
+                    'player_name': playerName,
+                    'info_type': infoType,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    console.log('Player info updated successfully');
+                },
+                error: function(response) {
+                    console.error('Error updating player info');
+                }
+            });
         });
+        
+        // Start voting
+        $('#start-voting').click(function() {
+            chatSocket.send(JSON.stringify({
+                'message': 'start_voting'
+            }));
+        });
+
+        // End voting
+        $('#end-voting').click(function() {
+            chatSocket.send(JSON.stringify({
+                'message': 'end_voting'
+            }));
+        });
+
     });
 </script>
 

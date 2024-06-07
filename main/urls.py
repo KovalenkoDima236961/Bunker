@@ -12,4 +12,6 @@ urlpatterns = [
     path('exit_room/<str:room_id>', views.exit_room, name='exit_room'),
     path('remove_player/<str:room_id>/', views.remove_player, name='remove_player'),
     path('check_player_in_room/<str:room_id>/', views.check_player_in_room, name='check_player_in_room'),
+    path('start_game/<str:room_id>/', views.start_game, name='start_game'),
+    path('check_game_started/<str:room_id>/', views.check_game_started, name='check_game_started'),
 ]

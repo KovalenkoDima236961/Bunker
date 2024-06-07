@@ -44,6 +44,10 @@
                     {% endfor %}
                 </ul>
             </div>
+{#            Треба поставити апдейт на кнопку#}
+            {% if room.players.count > 1 and is_creator %}
+                <button id="start-game-btn">Розпочати гру</button>
+            {% endif %}
         </div>
     </div>
 </main>
@@ -86,6 +90,7 @@
     setInterval(updatePlayerCount, 1000);
     setInterval(checkRoomExists, 1000);
     setInterval(checkIfPlayerStillInRoom, 1000);
+    setInterval(checkIfGameStarted, 1000);
 
     $('#exit-room-btn').click(function (){
         $.ajax({
@@ -165,6 +170,23 @@
             }
         });
     });
+    $('#start-game-btn').click(function() {
+        window.location.href = '{% url "start_game" room.name %}';
+    });
+    function checkIfGameStarted() {
+        $.ajax({
+            url: '{% url "check_game_started" room.name %}',
+            method: 'GET',
+            success: function(data) {
+                if (data.is_game_started) {
+                    window.location.href = '{% url "start_game" room.name %}';
+                }
+            },
+            error: function(error) {
+                console.error('Error:', error);
+            }
+        });
+    }
 </script>
 </body>
 </html>

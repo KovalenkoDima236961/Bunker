@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 import random
-from main.models import Room, Player
+from main.models import Room, Player, Gender, BodyBuild, HumanTrait, Speciality, Health, Hobby, Phobia, Inventory, \
+    MoreInformation, SpecialFeature, Bunker, Cataclysm
 
 
 def generate_random_name(length=10):
@@ -133,3 +134,90 @@ def check_player_in_room(request, room_id):
         return JsonResponse({'status': 'present'})
 
     return JsonResponse({'status': 'removed'})
+
+
+def categorize_age(number):
+    if number < 18:
+        value = "Teenagers"
+    elif 18 <= number <= 35:
+        value = "Young Adults"
+    elif 35 < number <= 55:
+        value = "Middle Age"
+    elif 55 < number <= 75:
+        value = "Senior Adults"
+    else:
+        value = "Elderly"
+    return value
+
+
+def create_random_player(player):
+    if not player.gender:
+        player.gender = Gender.objects.order_by('?').first()
+    if not player.body_build:
+        player.body_build = BodyBuild.objects.order_by('?').first()
+    if not player.a_human_trait:
+        player.a_human_trait = HumanTrait.objects.order_by('?').first()
+    if not player.speciality:
+        player.speciality = Speciality.objects.order_by('?').first()
+    if not player.health:
+        player.health = Health.objects.order_by('?').first()
+    if not player.hobby:
+        player.hobby = Hobby.objects.order_by('?').first()
+    if not player.phobia:
+        player.phobia = Phobia.objects.order_by('?').first()
+    if not player.inventory:
+        player.inventory = Inventory.objects.order_by('?').first()
+    if not player.more_information:
+        player.more_information = MoreInformation.objects.order_by('?').first()
+    if not player.special_feature1:
+        player.special_feature1 = SpecialFeature.objects.order_by('?').first()
+    if not player.special_feature2:
+        player.special_feature2 = SpecialFeature.objects.order_by('?').first()
+
+    player.save()
+    return player
+
+
+def generate_side():
+    bunker = random.choice(Bunker.objects.all())
+    return bunker
+
+
+def create_cataclysm():
+    cataclysm_instance = random.choice(Cataclysm.objects.all())
+    return cataclysm_instance
+
+
+# TODO Зробити так, щоб не будло видно
+
+def start_game(request, room_id):
+    room = get_object_or_404(Room, name=room_id)
+
+    for player in room.players.all():
+        create_random_player(player)
+
+    if not room.bunker:
+        room.bunker = generate_side()
+        room.save()
+
+    if not room.cataclysm:
+        room.cataclysm = create_cataclysm()
+        room.save()
+
+    room.is_game_started = True
+    room.save()
+
+    player_name = request.session.get('player_name')
+    player = get_object_or_404(Player, player_name=player_name, room=room)
+
+    return render(request, 'game_field.html', {
+        'room': room,
+        'player': player,
+        'bunker': room.bunker,
+        'cataclysm': room.cataclysm
+    })
+
+
+def check_game_started(request, room_id):
+    room = get_object_or_404(Room, name=room_id)
+    return JsonResponse({'is_game_started': room.is_game_started})

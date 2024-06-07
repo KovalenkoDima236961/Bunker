@@ -1,10 +1,193 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="{% static 'game_field.css' %}">
 </head>
 <body>
+<nav class="navbar">
+    <div class="logo">
+        <img src="{% static 'image/LEGO_logo.svg.png' %}" alt="Bunker Logo">
+        <span>BUNKER ONLINE</span>
+    </div>
+    <div class="menu">
+        <a href="#home" class="active">Главная</a>
+        <a href="#rules">Правила игры</a>
+        <a href="#wiki">Вики</a>
+        <a href="#updates">Обновления</a>
+    </div>
+</nav>
+<main>
+    <div class="sidebar">
+        <p>Меню</p>
+        <ul>
+            <li><a href="#1">1</a></li>
+            <li><a href="#2">2</a></li>
+            <li><a href="#3">3</a></li>
+            <li><a href="#4">4</a></li>
+            <li><a href="#5">5</a></li>
+            <li><a href="#6">6</a></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>Game Start</h1>
+        <h2>Player: {{ player.player_name }}</h2>
+        <h2>Room: {{ room.name }}</h2>
+        <h3>Bunker</h3>
+        <p>Был построен {{ bunker.built_years_ago }} лет назад. {{ bunker.has_hygiene_facilities|yesno:"Есть средства гигиены,Нет средств гигиены" }}, {{ bunker.location_description }}, все спальни на {{ bunker.capacity }} человек</p>
+        <p>Размер бункера: {{ bunker.size_sqm }} кв.м</p>
+        <p>Время нахождения: {{ bunker.duration_of_stay_years }} год</p>
+        <p>Количество еды: на {{ bunker.food_supply_years }} года</p>
+        <p>В бункере присутствует:</p>
+        <ul>
+            {% for feature in bunker.features.all %}
+                <li>{{ feature.name }}</li>
+            {% endfor %}
+        </ul>
+        <p>Количество мест в бункере: {{ bunker.capacity }}</p>
+        <h3>Cataclysm</h3>
+        <p>{{ cataclysm.year }}: {{ cataclysm.description }}</p>
+        <p>Время до бункера: {{ cataclysm.how_many_time_do_you_have }}</p>
+        <p>Оставшееся население: {{ cataclysm.remaining_population }}</p>
 
+        <h3>Player Information</h3>
+        <table>
+            <tr>
+                <th>Пол</th>
+                <td>{{ player.gender.name }}</td>
+                <td><button class="locked" data-info="gender">🔒</button></td>
+            </tr>
+            <tr>
+                <th>Телосложение</th>
+                <td>{{ player.body_build.name }}</td>
+                <td><button class="locked" data-info="body_build">🔒</button></td>
+            </tr>
+            <tr>
+                <th>Человеческая черта</th>
+                <td>{{ player.a_human_trait.name }}</td>
+                <td><button class="locked" data-info="a_human_trait">🔒</button></td>
+            </tr>
+            <tr>
+                <th>Специальность</th>
+                <td>{{ player.speciality.name }}</td>
+                <td><button class="locked" data-info="speciality">🔒</button></td>
+            </tr>
+            <tr>
+                <th>Здоровье</th>
+                <td>{{ player.health.name }}</td>
+                <td><button class="locked" data-info="health">🔒</button></td>
+            </tr>
+            <tr>
+                <th>Хобби / Увлечение</th>
+                <td>{{ player.hobby.name }}</td>
+                <td><button class="locked" data-info="hobby">🔒</button></td>
+            </tr>
+            <tr>
+                <th>Фобия / Страх</th>
+                <td>{{ player.phobia.name }}</td>
+                <td><button class="locked" data-info="phobia">🔒</button></td>
+            </tr>
+            <tr>
+                <th>Инвентарь</th>
+                <td>{{ player.inventory.name }}</td>
+                <td><button class="locked" data-info="inventory">🔒</button></td>
+            </tr>
+            <tr>
+                <th>Дополнительные сведения</th>
+                <td>{{ player.more_information.name }}</td>
+                <td><button class="locked" data-info="more_information">🔒</button></td>
+            </tr>
+            <tr>
+                <th>Special Feature 1</th>
+                <td>{{ player.special_feature1.name }}</td>
+                <td><button class="locked" data-info="special_feature1">🔒</button></td>
+            </tr>
+            <tr>
+                <th>Special Feature 2</th>
+                <td>{{ player.special_feature2.name }}</td>
+                <td><button class="locked" data-info="special_feature2">🔒</button></td>
+            </tr>
+        </table>
+        <h3>Желающие попасть в бункер ({{ room.players.count }}/{{ bunker.capacity }})</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Пол</th>
+                <th>Телосложение</th>
+                <th>Человеческая черта</th>
+                <th>Специальность</th>
+                <th>Здоровье</th>
+                <th>Хобби / Увлечение</th>
+                <th>Фобия / Страх</th>
+                <th>Инвентарь</th>
+                <th>Дополнительные сведения</th>
+            </tr>
+            </thead>
+            <tbody id="players-info">
+            {% for player in room.players.all %}
+                <tr>
+                    <td>{{ player.player_name }}</td>
+                    <td class="locked" data-info="gender">🔒</td>
+                    <td class="locked" data-info="body_build">🔒</td>
+                    <td class="locked" data-info="a_human_trait">🔒</td>
+                    <td class="locked" data-info="speciality">🔒</td>
+                    <td class="locked" data-info="health">🔒</td>
+                    <td class="locked" data-info="hobby">🔒</td>
+                    <td class="locked" data-info="phobia">🔒</td>
+                    <td class="locked" data-info="inventory">🔒</td>
+                    <td class="locked" data-info="more_information">🔒</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <h3>Таблица спец.возможностей</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Спец.возможность №1</th>
+                <th>Спец.возможность №2</th>
+            </tr>
+            </thead>
+            <tbody id="special-features-info">
+            {% for player in room.players.all %}
+                <tr>
+                    <td>{{ player.player_name }}</td>
+                    <td class="locked" data-info="special_feature1">🔒</td>
+                    <td class="locked" data-info="special_feature2">🔒</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+<script>
+    $(document).ready(function() {
+        $('.locked').click(function() {
+            let $button = $(this);
+            let infoType = $button.data('info');
+            let infoValue = $button.closest('tr').find('td').eq(1).text();
+            
+            if (infoType.includes('special_feature')) {
+                $('#special-features-info').find('td[data-info="' + infoType + '"]').each(function() {
+                    if ($(this).closest('tr').find('td:first').text() !== '{{ player.player_name }}') {
+                        $(this).removeClass('locked').text(infoValue);
+                    }
+                });
+            } else {
+                $('#players-info').find('td[data-info="' + infoType + '"]').each(function() {
+                    if ($(this).closest('tr').find('td:first').text() !== '{{ player.player_name }}') {
+                        $(this).removeClass('locked').text(infoValue);
+                    }
+                });
+            }
+            
+            $button.removeClass('locked').addClass('unlocked').text('🔓');
+        });
+    });
+</script>
 </body>
 </html>

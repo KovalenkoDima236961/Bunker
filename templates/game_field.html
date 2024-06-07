@@ -129,7 +129,7 @@
             </thead>
             <tbody id="players-info">
             {% for player in room.players.all %}
-                <tr>
+                <tr data-player="{{ player.player_name }}">
                     <td>{{ player.player_name }}</td>
                     <td class="{% if player.is_gender_open %}unlocked{% else %}locked{% endif %}" data-info="gender">{% if player.is_gender_open %}{{ player.gender.name }}{% else %} {% endif %}</td>
                     <td class="{% if player.is_body_build_open %}unlocked{% else %}locked{% endif %}" data-info="body_build">{% if player.is_body_build_open %}{{ player.body_build.name }}{% else %} {% endif %}</td>
@@ -155,7 +155,7 @@
             </thead>
             <tbody id="special-features-info">
             {% for player in room.players.all %}
-                <tr>
+                <tr data-player="{{ player.player_name }}">
                     <td>{{ forloop.counter }} | {{ player.player_name }}</td>
                     <td class="{% if player.is_special_feature1_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature1">{% if player.is_special_feature1_open %}{{ player.special_feature1.name }}{% else %} {% endif %}</td>
                     <td class="{% if player.is_special_feature2_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature2">{% if player.is_special_feature2_open %}{{ player.special_feature2.name }}{% else %} {% endif %}</td>
@@ -178,18 +178,15 @@
         const message = data['message'];
         const infoType = data['info_type'];
         const infoValue = data['info_value'];
+        const playerName = data['player_name'];
 
-        $('#players-info').find('td[data-info="' + infoType + '"]').each(function() {
-            if ($(this).closest('tr').find('td:first').text() !== '{{ player.player_name }}') {
-                $(this).removeClass('locked').text(infoValue);
-            }
+        $('#players-info').find('tr[data-player="' + playerName + '"]').find('td[data-info="' + infoType + '"]').each(function() {
+            $(this).removeClass('locked').addClass('unlocked').text(infoValue);
         });
 
         if (infoType.includes('special_feature')) {
-            $('#special-features-info').find('td[data-info="' + infoType + '"]').each(function() {
-                if ($(this).closest('tr').find('td:first').text() !== '{{ player.player_name }}') {
-                    $(this).removeClass('locked').text(infoValue);
-                }
+            $('#special-features-info').find('tr[data-player="' + playerName + '"]').find('td[data-info="' + infoType + '"]').each(function() {
+                $(this).removeClass('locked').addClass('unlocked').text(infoValue);
             });
         }
     };
@@ -199,33 +196,27 @@
     };
 
     $(document).ready(function() {
-        $('.locked, .unlocked').click(function() {
+        $('.locked').click(function() {
             let $button = $(this);
             let infoType = $button.data('info');
-            let isLocked = $button.hasClass('locked');
-            let infoValue = $button.closest('tr').find('td').eq(1).text();
+            let infoValue = $button.data('value');
+            let playerName = "{{ player.player_name }}";
 
-            // Update the corresponding cells in the lower table
-            if (infoType.includes('special_feature')) {
-                $('#special-features-info').find('td[data-info="' + infoType + '"]').each(function() {
-                    if ($(this).closest('tr').find('td:first').text() !== '{{ player.player_name }}') {
-                        $(this).removeClass('locked').text(infoValue);
-                    }
-                });
-            } else {
-                $('#players-info').find('td[data-info="' + infoType + '"]').each(function() {
-                    if ($(this).closest('tr').find('td:first').text() !== '{{ player.player_name }}') {
-                        $(this).removeClass('locked').text(infoValue);
-                    }
-                });
+            // Check if already unlocked, prevent from locking again
+            if ($button.hasClass('unlocked')) {
+                return;
             }
+
+            // Send the data to WebSocket
+            chatSocket.send(JSON.stringify({
+                'message': 'update',
+                'info_type': infoType,
+                'info_value': infoValue,
+                'player_name': playerName
+            }));
 
             // Change the lock/unlock state of the button
-            if (isLocked) {
-                $button.removeClass('locked').addClass('unlocked').text('🔓');
-            } else {
-                $button.removeClass('unlocked').addClass('locked').text('🔒');
-            }
+            $button.removeClass('locked').addClass('unlocked').text('🔓');
         });
     });
 </script>

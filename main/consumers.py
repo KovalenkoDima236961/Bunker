@@ -28,6 +28,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         message = text_data_json['message']
         info_type = text_data_json['info_type']
         info_value = text_data_json['info_value']
+        player_name = text_data_json['player_name']
 
         # Send message to room group
         await self.channel_layer.group_send(
@@ -36,7 +37,8 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                 'type': 'game_message',
                 'message': message,
                 'info_type': info_type,
-                'info_value': info_value
+                'info_value': info_value,
+                'player_name': player_name
             }
         )
 
@@ -44,10 +46,12 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         message = event['message']
         info_type = event['info_type']
         info_value = event['info_value']
+        player_name = event['player_name']
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'message': message,
             'info_type': info_type,
-            'info_value': info_value
+            'info_value': info_value,
+            'player_name': player_name
         }))

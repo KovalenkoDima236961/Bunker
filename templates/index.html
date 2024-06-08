@@ -52,6 +52,20 @@
             </form>
         </div>
     </div>
+    <div class="content">
+        <div class="form-container">
+            <h2>Ваши игровые комнаты</h2>
+            <ul>
+                {% for room in player_rooms %}
+                    <li>
+                        <a href="{% url 'game_room' room.name %}">{{ room.name }}</a>
+                    </li>
+                {% empty %}
+                    <li>Вы не присоединились ни к одной игровой комнате.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </main>
 </body>
 </html>

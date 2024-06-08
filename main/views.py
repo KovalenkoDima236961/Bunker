@@ -13,7 +13,13 @@ def generate_random_name(length=10):
 
 
 def index(request):
-    return render(request, 'index.html')
+    player_name = request.session.get('player_name')
+    if player_name:
+        player_rooms = Room.objects.filter(players__player_name=player_name)
+    else:
+        player_rooms = []
+
+    return render(request, 'index.html', {'player_rooms': player_rooms})
 
 
 def game(request):
@@ -37,9 +43,27 @@ def game(request):
     return render(request, 'index.html')
 
 
+def login(request, room_id):
+    if request.method == 'POST':
+        username = request.POST['username']
+        room = Room.objects.get(name=room_id)
+        if room.players.filter(player_name=username).exists():
+            messages.info(request, "Username is already exists")
+            return redirect('login', room_id=room_id)
+
+        Player.objects.create(room=room, player_name=username)
+        request.session['player_name'] = username
+        return redirect('game_room', room_id=room.name)
+
+    return render(request, 'login.html')
+
+
 def game_room(request, room_id):
+    player_name = request.session.get('player_name', None)
+    if not player_name:
+        return redirect('login', room_id=room_id)
+
     room = get_object_or_404(Room, name=room_id)
-    player_name = request.session.get('player_name')
     if not player_name:
         messages.error(request, 'Please enter a player name')
         return redirect('index')

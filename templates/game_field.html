@@ -163,27 +163,29 @@
             {% endfor %}
             </tbody>
         </table>
+
         {% if is_creator %}
-            <div id="admin-panel">
-                <h3>Адмін панель</h3>
-                <form id="admin-actions" method="post">
-                    {% csrf_token %}
-                    <button type="button" id="start-voting">Запустити голосування</button>
-                    <button type="button" id="end-voting" style="display:none;">Закінчити голосування</button>
-                </form>
-            </div>
+            <h3>Админ панель</h3>
+            <button id="start-voting-btn">Начать голосование</button>
+            <button id="end-voting-btn" style="display: none;">Завершить голосование</button>
         {% endif %}
-        <div id="voting-section" style="display:none;">
+
+        <div id="voting-section" style="display: none;">
             <h3>Голосование против игрока</h3>
             <form id="voting-form">
                 {% for player in room.players.all %}
                     <div>
-                        <input type="radio" id="vote_{{ player.id }}" name="vote" value="{{ player.id }}">
+                        <input type="radio" id="vote_{{ player.id }}" name="vote" value="{{ player.player_name }}">
                         <label for="vote_{{ player.id }}">{{ player.player_name }}</label>
                     </div>
                 {% endfor %}
                 <button type="submit">Проголосовать</button>
             </form>
+        </div>
+
+        <div id="voting-results" style="display: none;">
+            <h3>Результаты голосования</h3>
+            <ul id="results-list"></ul>
         </div>
     </div>
 </main>
@@ -214,12 +216,23 @@
             }
         } else if (message === 'start_voting') {
             $('#voting-section').show();
-            $('#start-voting').hide();
-            $('#end-voting').show();
+            $('#start-voting-btn').hide();
+            $('#end-voting-btn').show();
         } else if (message === 'end_voting') {
             $('#voting-section').hide();
-            $('#start-voting').show();
-            $('#end-voting').hide();
+            $('#end-voting-btn').hide();
+            $('#start-voting-btn').show();
+            
+            const votes = data['votes'];
+            const resultsList = $('#results-list');
+            resultsList.empty();
+            for (const player in votes) {
+                if (votes.hasOwnProperty(player)) {
+                    const voters = votes[player].join(', ');
+                    resultsList.append('<li>' + player + ': ' + votes[player].length + ' votes (' + voters + ')</li>');
+                }
+            }
+            $('#voting-results').show();
         }
     };
 
@@ -265,23 +278,31 @@
                 }
             });
         });
-        
-        // Start voting
-        $('#start-voting').click(function() {
+
+        $('#start-voting-btn').click(function() {
             chatSocket.send(JSON.stringify({
                 'message': 'start_voting'
             }));
         });
 
-        // End voting
-        $('#end-voting').click(function() {
+        $('#end-voting-btn').click(function() {
             chatSocket.send(JSON.stringify({
                 'message': 'end_voting'
             }));
         });
 
+        $('#voting-form').submit(function(e) {
+            e.preventDefault();
+            const vote = $('input[name="vote"]:checked').val();
+            chatSocket.send(JSON.stringify({
+                'message': 'vote',
+                'vote': vote,
+                'voter': "{{ player.player_name }}"
+            }));
+        });
     });
 </script>
+
 
 </body>
 </html>

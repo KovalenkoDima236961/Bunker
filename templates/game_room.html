@@ -30,7 +30,7 @@
                 <button class="close-room-btn" id="exit-room-btn">Вийти з кімнати</button>
             {% endif %}
             <p>Чтобы начать игру нужно как минимум 6 человек. (<span id="player-count">{{ room.players.count }}</span>/15)</p>
-            <p>http://bunker-online.com/game?room_id={{ room.name }}</p>
+            <p id="href_for_room"></p>
             <div class="players-list">
                 <h2>Кандидаты в бункер</h2>
                 <ul id="players-list">
@@ -52,6 +52,9 @@
     </div>
 </main>
 <script>
+    const path = window.location.href;
+    $('#href_for_room').innerText = path;
+
     function updatePlayerCount() {
         $.ajax({
             url: '{% url "number_of_people" room.name %}',

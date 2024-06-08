@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="container">
+    <h1>Enter Your Name</h1>
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Your name" required>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+</body>
+</html>

@@ -46,7 +46,7 @@
             </div>
 {#            Треба поставити апдейт на кнопку#}
             {% if room.players.count > 1 and is_creator %}
-                <button id="start-game-btn">Розпочати гру</button>
+                <button id="start-game-btn" style="display: none;">Розпочати гру</button>
             {% endif %}
         </div>
     </div>
@@ -71,6 +71,12 @@
                     playerItem += '</li>';
                     playersList.append(playerItem);
                 });
+            
+                if (data.count > 1) {
+                    $('#start-game-btn').show();
+                } else {
+                    $('#start-game-btn').hide();
+                }
             },
             error: function(error) {
                 console.error('Error:', error);

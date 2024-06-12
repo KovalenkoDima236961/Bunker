@@ -3,6 +3,11 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 import random
+
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+from main.abilities import change_inventory_randomly
 from main.models import Room, Player, Gender, BodyBuild, HumanTrait, Speciality, Health, Hobby, Phobia, Inventory, \
     MoreInformation, SpecialFeature, Bunker, Cataclysm
 
@@ -233,6 +238,7 @@ def start_game(request, room_id):
     player = get_object_or_404(Player, player_name=player_name, room=room)
 
     is_creator = room.creator.player_name == player_name
+    request.session['number_of_players'] = room.players.count()
 
     return render(request, 'game_field.html', {
         'room': room,
@@ -240,6 +246,7 @@ def start_game(request, room_id):
         'bunker': room.bunker,
         'cataclysm': room.cataclysm,
         'is_creator': is_creator,
+        'number_of_players': room.players.count(),
     })
 
 
@@ -299,3 +306,32 @@ def vote_against_player(request):
 
         return redirect('game_room', room_name=voted_player.room.name)
     return JsonResponse({'status': 'fail'})
+
+
+@csrf_exempt
+@require_POST
+def activate_special_feature(request):
+    player_id = request.POST.get('player_id')
+    feature_type = request.POST.get('feature_type')
+    action = request.POST.get('action')  # 'unlock' or 'lock'
+
+    player = get_object_or_404(Player, id=player_id)
+    feature = getattr(player, feature_type, None)
+
+    if not feature:
+        return JsonResponse({'status': 'error', 'message': 'Feature not found'})
+
+    # Perform the action
+    if action == 'unlock' and not getattr(player, f'is_{feature_type}_open', False):
+        # Assuming the feature activation changes something
+        # For example, changing an inventory or unlocking new abilities
+        execute_feature(player, feature)
+        setattr(player, f'is_{feature_type}_open', True)
+        player.save()
+        return JsonResponse({'status': 'success', 'message': 'Feature unlocked and activated'})
+    elif action == 'lock':
+        setattr(player, f'is_{feature_type}_open', False)
+        player.save()
+        return JsonResponse({'status': 'success', 'message': 'Feature locked'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid action or state'})

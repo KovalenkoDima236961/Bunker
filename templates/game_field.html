@@ -14,7 +14,7 @@
         <span>BUNKER ONLINE</span>
     </div>
     <div class="menu">
-        <a href="#home" class="active">Главная</a>
+        <a href="{% url 'index' %}">Главная</a>
         <a href="#rules">Правила игры</a>
         <a href="#wiki">Вики</a>
         <a href="#updates">Обновления</a>
@@ -103,12 +103,12 @@
             <tr>
                 <th>Special Feature 1</th>
                 <td>{{ player.special_feature1.name }}</td>
-                <td><button class="{% if player.is_special_feature1_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature1" data-value="{{ player.special_feature1.name }}">{% if player.is_special_feature1_open %}🔓{% else %}🔒{% endif %}</button></td>
+                <td><button onclick="toggleSpecialFeature('{{ player.id }}', 'special_feature1', '{{ player.is_special_feature1_open }}')" class="{% if player.is_special_feature1_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature1" data-value="{{ player.special_feature1.name }}">{% if player.is_special_feature1_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Special Feature 2</th>
                 <td>{{ player.special_feature2.name }}</td>
-                <td><button class="{% if player.is_special_feature2_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature2" data-value="{{ player.special_feature2.name }}">{% if player.is_special_feature2_open %}🔓{% else %}🔒{% endif %}</button></td>
+                <td><button onclick="toggleSpecialFeature('{{ player.id }}', 'special_feature2', '{{ player.is_special_feature2_open }}')" class="{% if player.is_special_feature2_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature2" data-value="{{ player.special_feature2.name }}">{% if player.is_special_feature2_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
         </table>
         <h3>Желающие попасть в бункер ({{ room.players.count }}/{{ bunker.capacity }})</h3>
@@ -173,11 +173,13 @@
         <div id="voting-section" style="display: none;">
             <h3>Голосование против игрока</h3>
             <form id="voting-form">
-                {% for player in room.players.all %}
+                {% for game_player in room.players.all %}
+                    {% if game_player.player_name != player.player_name %}
                     <div>
-                        <input type="radio" id="vote_{{ player.id }}" name="vote" value="{{ player.player_name }}">
-                        <label for="vote_{{ player.id }}">{{ player.player_name }}</label>
+                        <input type="radio" id="vote_{{ game_player.id }}" name="vote" value="{{ game_player.player_name }}">
+                        <label for="vote_{{ game_player.id }}">{{ game_player.player_name }}</label>
                     </div>
+                    {% endif %}
                 {% endfor %}
                 <button type="submit">Проголосовать</button>
             </form>
@@ -191,116 +193,151 @@
 </main>
 <script>
     const roomName = "{{ room.name }}";
-    const ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-    const chatSocket = new WebSocket(
-        ws_scheme + '://' + window.location.host +
-        '/ws/game/' + roomName + '/'
-    );
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const chatSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/game/${roomName}/`);
 
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        const message = data['message'];
-        const infoType = data['info_type'];
-        const infoValue = data['info_value'];
-        const playerName = data['player_name'];
 
-        if (message === 'update') {
-            $('#players-info').find('tr[data-player="' + playerName + '"]').find('td[data-info="' + infoType + '"]').each(function() {
-                $(this).removeClass('locked').addClass('unlocked').text(infoValue);
-            });
-
-            if (infoType.includes('special_feature')) {
-                $('#special-features-info').find('tr[data-player="' + playerName + '"]').find('td[data-info="' + infoType + '"]').each(function() {
-                    $(this).removeClass('locked').addClass('unlocked').text(infoValue);
-                });
-            }
-        } else if (message === 'start_voting') {
-            $('#voting-section').show();
-            $('#start-voting-btn').hide();
-            $('#end-voting-btn').show();
-        } else if (message === 'end_voting') {
-            $('#voting-section').hide();
-            $('#end-voting-btn').hide();
-            $('#start-voting-btn').show();
-            
-            const votes = data['votes'];
-            const resultsList = $('#results-list');
-            resultsList.empty();
-            for (const player in votes) {
-                if (votes.hasOwnProperty(player)) {
-                    const voters = votes[player].join(', ');
-                    resultsList.append('<li>' + player + ': ' + votes[player].length + ' votes (' + voters + ')</li>');
-                }
-            }
-            $('#voting-results').show();
+        switch (data.message) {
+            case 'update':
+                handleUpdate(data);
+                break;
+            case 'start_voting':
+                handleStartVoting();
+                break;
+            case 'vote':
+                updateVotes(data.voter, data.vote);
+                break;
+            case 'end_voting':
+                handleEndVoting();
+                displayResults(data.votes);  // Оновлення результатів на сторінці
+                break;
         }
     };
 
+    function displayResults(votes) {
+        const resultsList = $('#results-list');
+        resultsList.empty();
+        for (const [player, voters] of Object.entries(votes)) {
+            resultsList.append(`<li>${player}: ${voters.length} votes</li>`);
+        }
+        $('#voting-results').show();  // Переконайтесь, що цей блок показується
+    }
+
+
     chatSocket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly');
+        console.error('Chat socket closed unexpectedly:', e);
+
     };
 
-    $(document).ready(function() {
-        $('.locked').click(function() {
-            let $button = $(this);
-            let infoType = $button.data('info');
-            let infoValue = $button.data('value');
-            let playerName = "{{ player.player_name }}";
+function handleUpdate(data) {
 
-            if ($button.hasClass('unlocked')) {
+    $(`#players-info tr[data-player="${data.player_name}"] td[data-info="${data.info_type}"]`).each(function() {
+        $(this).removeClass('locked').addClass('unlocked').text(data.info_value);
+    });
+
+    // Specific handling for special features
+    if (data.info_type === 'special_feature1' || data.info_type === 'special_feature2') {
+        $(`#special-features-info tr[data-player="${data.player_name}"] td[data-info="${data.info_type}"]`).each(function() {
+            $(this).removeClass('locked').addClass('unlocked').text(data.info_value);
+        });
+    }
+}
+
+    function handleStartVoting() {
+        $('#voting-section').show();
+        $('#start-voting-btn').hide();
+        $('#end-voting-btn').show();
+    }
+
+    function handleEndVoting() {
+        $('#voting-section').hide();
+        $('#end-voting-btn').hide();
+        $('#start-voting-btn').show();
+        $('#voting-results').show();
+    }
+
+    function updateVotes(voter, vote) {
+        const resultsList = $('#results-list');
+        const existingEntry = resultsList.find(`li[data-voter="${voter}"]`);
+        if (existingEntry.length) {
+            existingEntry.text(`${voter}: voted for ${vote}`);
+        } else {
+            resultsList.append(`<li data-voter="${voter}">${voter}: voted for ${vote}</li>`);
+        }
+    }
+    $(document).ready(function() {
+        $('#voting-form').submit(function(e) {
+            e.preventDefault();
+            const vote = $('input[name="vote"]:checked').val();
+            chatSocket.send(JSON.stringify({
+                message: 'vote',
+                vote: vote,
+                voter: "{{ player.player_name }}"
+            }));
+        });
+
+        $('#start-voting-btn').click(function() {
+            chatSocket.send(JSON.stringify({ message: 'start_voting' }));
+        });
+
+        $('#end-voting-btn').click(function() {
+            chatSocket.send(JSON.stringify({ message: 'end_voting' }));
+        });
+
+        $('.locked').click(function() {
+            if ($(this).hasClass('unlocked')) {
                 return;
             }
+            $(this).removeClass('locked').addClass('unlocked').text('🔓');
+            const infoType = $(this).data('info');
+            const infoValue = $(this).data('value');
+            const playerName = "{{ player.player_name }}";
 
-            // Send the data to WebSocket
             chatSocket.send(JSON.stringify({
-                'message': 'update',
-                'info_type': infoType,
-                'info_value': infoValue,
-                'player_name': playerName
+                message: 'update',
+                info_type: infoType,
+                info_value: infoValue,
+                player_name: playerName
             }));
 
-            $button.removeClass('locked').addClass('unlocked').text('🔓');
-
-            // Send AJAX request to update the database
             $.ajax({
                 url: '{% url "update_player_info" %}',
                 method: 'POST',
                 data: {
-                    'player_name': playerName,
-                    'info_type': infoType,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    player_name: playerName,
+                    info_type: infoType,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success: function(response) {
                     console.log('Player info updated successfully');
                 },
                 error: function(response) {
-                    console.error('Error updating player info');
+                    console.error('Error updating player info', response);
                 }
             });
         });
-
-        $('#start-voting-btn').click(function() {
-            chatSocket.send(JSON.stringify({
-                'message': 'start_voting'
-            }));
-        });
-
-        $('#end-voting-btn').click(function() {
-            chatSocket.send(JSON.stringify({
-                'message': 'end_voting'
-            }));
-        });
-
-        $('#voting-form').submit(function(e) {
-            e.preventDefault();
-            const vote = $('input[name="vote"]:checked').val();
-            chatSocket.send(JSON.stringify({
-                'message': 'vote',
-                'vote': vote,
-                'voter': "{{ player.player_name }}"
-            }));
-        });
     });
+    
+function toggleSpecialFeature(playerId, featureType, isFeatureOpen) {
+    // Determine action based on current state
+    const action = isFeatureOpen === 'true' ? 'lock' : 'unlock';
+
+    fetch(`/activate_feature/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: `player_id=${playerId}&feature_type=${featureType}&action=${action}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        location.reload(); // Reload the page to update the button state
+    });
+}
 </script>
 
 

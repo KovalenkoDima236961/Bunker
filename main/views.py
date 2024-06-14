@@ -292,8 +292,14 @@ def update_player_info(request):
     player_name = request.POST.get('player_name')
     info_type = request.POST.get('info_type')
 
+    print(player_name)
+    print(info_type)
+
     player = get_object_or_404(Player, player_name=player_name)
-    setattr(player, f'is_{info_type}_open', True)
+    if info_type == "a_human_trait":
+        player.is_human_trait_open = True
+    else:
+        setattr(player, f'is_{info_type}_open', True)
     player.save()
 
     return JsonResponse({'status': 'success'})

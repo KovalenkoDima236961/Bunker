@@ -193,8 +193,8 @@
 </main>
 <script>
     const roomName = "{{ room.name }}";
-    const specialFeature1 = {{ player.special_feature1 }}
-    const specialFeature2 = {{ player.special_feature2 }}
+    const specialFeature1 = "{{ player.special_feature1 }}"
+    const specialFeature2 = "{{ player.special_feature2 }}"
 
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
     const chatSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/game/${roomName}/`);
@@ -203,7 +203,7 @@
 
         const data = JSON.parse(e.data);
         {#console.log("WebSocket message received:", e.data);#}
-        console.log(data.message);
+        console.log(data);
 
         switch (data.message) {
             case 'update':
@@ -243,6 +243,11 @@
                 console.log(data.new_human_traits)
                 updateHumanTraitsDisplay(data.player_name, data.new_human_traits)
                 break
+            case 'change_all_inventories':
+                    data.inventories.forEach(inventory => {
+                        updateInventoryDisplay(inventory.player_name, inventory.new_inventory);
+                    });
+                    break;
         }
     };
 
@@ -253,7 +258,7 @@
                 console.log("Already used")
                 return;
             }
-        }else {
+        }else if(whichFeature === 'feature2') {
             if (specialFeature2 === true){
                 console.log("Already used")
                 return;
@@ -372,8 +377,11 @@ function handleUpdate(data) {
                 return;
             }
             $(this).removeClass('locked').addClass('unlocked').text('🔓');
+
             const infoType = $(this).data('info');
+            console.log(infoType)
             const infoValue = $(this).data('value');
+            console.log(infoValue)
             const playerName = "{{ player.player_name }}";
 
             chatSocket.send(JSON.stringify({

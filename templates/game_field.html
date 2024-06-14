@@ -54,7 +54,7 @@
         <p>Оставшееся население: {{ cataclysm.remaining_population }}</p>
 
         <h3>Player Information</h3>
-        <table>
+        <table id="myData">
             <tr>
                 <th>Пол</th>
                 <td>{{ player.gender.name }}</td>
@@ -103,12 +103,12 @@
             <tr>
                 <th>Special Feature 1</th>
                 <td>{{ player.special_feature1.name }}</td>
-                <td><button onclick="toggleSpecialFeature('{{ player.id }}', 'special_feature1', '{{ player.is_special_feature1_open }}')" class="{% if player.is_special_feature1_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature1" data-value="{{ player.special_feature1.name }}">{% if player.is_special_feature1_open %}🔓{% else %}🔒{% endif %}</button></td>
+                <td><button onclick="activateFeature('{{ player.id }}', '{{ player.special_feature1.id }}', 'feature1')" class="{% if player.is_special_feature1_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature1" data-value="{{ player.special_feature1.name }}">{% if player.is_special_feature1_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
             <tr>
                 <th>Special Feature 2</th>
                 <td>{{ player.special_feature2.name }}</td>
-                <td><button onclick="toggleSpecialFeature('{{ player.id }}', 'special_feature2', '{{ player.is_special_feature2_open }}')" class="{% if player.is_special_feature2_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature2" data-value="{{ player.special_feature2.name }}">{% if player.is_special_feature2_open %}🔓{% else %}🔒{% endif %}</button></td>
+                <td><button onclick="activateFeature('{{ player.id }}', '{{ player.special_feature2.id }}', 'feature2')" class="{% if player.is_special_feature2_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature2" data-value="{{ player.special_feature2.name }}">{% if player.is_special_feature2_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
         </table>
         <h3>Желающие попасть в бункер ({{ room.players.count }}/{{ bunker.capacity }})</h3>
@@ -193,11 +193,17 @@
 </main>
 <script>
     const roomName = "{{ room.name }}";
+    const specialFeature1 = {{ player.special_feature1 }}
+    const specialFeature2 = {{ player.special_feature2 }}
+
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
     const chatSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/game/${roomName}/`);
 
     chatSocket.onmessage = function(e) {
+
         const data = JSON.parse(e.data);
+        {#console.log("WebSocket message received:", e.data);#}
+        console.log(data.message);
 
         switch (data.message) {
             case 'update':
@@ -213,8 +219,52 @@
                 handleEndVoting();
                 displayResults(data.votes);  // Оновлення результатів на сторінці
                 break;
+            case 'inventory_update':
+                console.log(data.new_inventory)
+                updateInventoryDisplay(data.player_name, data.new_inventory); // Pass room_name as well
+                break;
+            case 'health_update':
+                console.log(data.new_health)
+                updateHealthDisplay(data.player_name, data.new_health);
+                break;
+            case 'speciality_update':
+                console.log(data.new_speciality)
+                updateSpecialityDisplay(data.player_name, data.new_speciality)
+                break;
+            case 'hobby_update':
+                console.log(data.new_hobby)
+                updateHobbyDisplay(data.player_name, data.new_hobby);
+                break;
+            case 'phobias_update':
+                console.log(data.new_phobias)
+                updatePhobiasDisplay(data.player_name, data.new_phobias)
+                break;
+            case 'human_traits_update':
+                console.log(data.new_human_traits)
+                updateHumanTraitsDisplay(data.player_name, data.new_human_traits)
+                break
         }
     };
+
+
+    function activateFeature(player_id, featureId, whichFeature) {
+        if (whichFeature === 'feature1'){
+            if(specialFeature1 === true){
+                console.log("Already used")
+                return;
+            }
+        }else {
+            if (specialFeature2 === true){
+                console.log("Already used")
+                return;
+            }
+        }
+        chatSocket.send(JSON.stringify({
+            message: 'activate_feature',
+            player_id: player_id,
+            feature_id: featureId,
+            room_name: roomName // Including room name in the WebSocket message
+    }))}
 
     function displayResults(votes) {
         const resultsList = $('#results-list');
@@ -230,6 +280,37 @@
         console.error('Chat socket closed unexpectedly:', e);
 
     };
+
+    function updateHumanTraitsDisplay(playerName, newHumanTraits){
+        console.log("Updating speciality for", playerName, "to", newHumanTraits);
+        $(`#players-info tr[data-player="${playerName}"] td[data-info="a_human_trait"]`).text(newHumanTraits);
+    }
+    
+    function updatePhobiasDisplay(playerName, newPhobias){
+        console.log("Updating speciality for", playerName, "to", newPhobias);
+        $(`#players-info tr[data-player="${playerName}"] td[data-info="phobia"]`).text(newPhobias);
+    }
+
+    function updateHobbyDisplay(playerName, newHobby){
+        console.log("Updating speciality for", playerName, "to", newHobby);
+        $(`#players-info tr[data-player="${playerName}"] td[data-info="hobby"]`).text(newHobby);
+    }
+
+    function updateSpecialityDisplay(playerName, newSpeciality){
+        console.log("Updating speciality for", playerName, "to", newSpeciality);
+        $(`#players-info tr[data-player="${playerName}"] td[data-info="speciality"]`).text(newSpeciality);
+    }
+
+    function updateInventoryDisplay(playerName,newInventory) {
+        // Find all inventory display elements and update the one corresponding to the player and room
+        console.log("Updating inventory for", playerName, "to", newInventory);
+        $(`#players-info tr[data-player="${playerName}"] td[data-info="inventory"]`).text(newInventory);
+    }
+
+    function updateHealthDisplay(playerName, newHealth) {
+        console.log("Updating health for", playerName, "to", newHealth);
+        $(`#players-info tr[data-player="${playerName}"] td[data-info="health"]`).text(newHealth);
+    }
 
 function handleUpdate(data) {
 
@@ -321,22 +402,13 @@ function handleUpdate(data) {
     });
     
 function toggleSpecialFeature(playerId, featureType, isFeatureOpen) {
-    // Determine action based on current state
-    const action = isFeatureOpen === 'true' ? 'lock' : 'unlock';
-
-    fetch(`/activate_feature/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: `player_id=${playerId}&feature_type=${featureType}&action=${action}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        location.reload(); // Reload the page to update the button state
-    });
+    const action = isFeatureOpen === 'true' ? 'deactivate' : 'activate';
+    chatSocket.send(JSON.stringify({
+        type: 'toggle_feature',
+        player_id: playerId,
+        feature_type: featureType,
+        action: action
+    }));
 }
 </script>
 

@@ -4,7 +4,7 @@ import asyncio
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
-from main.models import Player, Inventory, SpecialFeature, Health, Hobby, Room, Speciality, Phobia
+from main.models import Player, Inventory, SpecialFeature, Health, Hobby, Room, Speciality, Phobia, Bunker, Cataclysm
 
 
 # TODO Проблема полягає в тому, що голосуванні не правильно працює
@@ -48,6 +48,34 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             await self.handle_voting(content)
         elif message_type == 'activate_feature':
             await self.activate_feature(content)
+        elif message_type == 'kick_player':
+            player_id = content['player_id']
+            success = await self.kick_player(player_id)
+            if success:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'player_kicked',
+                        'player_id': player_id
+                    }
+                )
+
+    # TODO Check if delete is worked
+    @database_sync_to_async
+    def kick_player(self, player_id):
+        try:
+            player = Player.objects.get(pk=player_id)
+            player.delete()  # This deletes the player record from the database
+            return True
+        except Player.DoesNotExist:
+            return False
+
+    async def player_kicked(self, event):
+        player_id = event['player_id']
+        await self.send_json({
+            'message': 'you_are_kicked',
+            'player_id': player_id
+        })
 
     async def activate_feature(self, content):
         player_id = content['player_id']
@@ -57,6 +85,9 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         player = await self.get_player(player_id)
         feature = await self.get_feature(feature_id)
 
+
+
+        # Зробити словник для кожної feature
         if feature.name == "change_inventory":
             print("I change the inventory")
             new_inventory = await self.change_inventory(player)
@@ -137,6 +168,45 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             await self.change_speciality_for_all(room_name)
         elif feature.name == "change_all_phobias":
             await self.change_phobias_for_all(room_name)
+        elif feature.name == "change_bunker":
+            new_bunker = await self.change_bunker(room_name)
+            if new_bunker:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'game_message',
+                        'message': 'bunker_update',
+                        'room_name': room_name,
+                        'new_bunker': {
+                            'built_years_ago': new_bunker.built_years_ago,
+                            'has_hygiene_facilities': new_bunker.has_hygiene_facilities,
+                            'location_description': new_bunker.location_description,
+                            'capacity': new_bunker.capacity,
+                            'size_sqm': new_bunker.size_sqm,
+                            'duration_of_stay_years': new_bunker.duration_of_stay_years,
+                            'food_supply_years': new_bunker.food_supply_years,
+                            'features': [feature.name for feature in new_bunker.features.all()]
+                        }
+                    }
+                )
+        elif feature.name == "change_cataclysm":
+            # TODO Check if it works
+            print("I change cataclysm")
+            new_cataclysm = await self.change_cataclysm(room_name)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_message',
+                    'message': 'cataclysm_update',
+                    'room_name': room_name,
+                    'new_cataclysm': {
+                        'year': new_cataclysm.year,
+                        'description': new_cataclysm.description,
+                        'how_many_time_do_you_have': new_cataclysm.how_many_time_do_you_have,
+                        'remaining_population': new_cataclysm.remaining_population,
+                    }
+                }
+            )
         # Dummy methods to simulate database operations, replace with actual DB calls
 
     async def game_message(self, event):
@@ -146,6 +216,28 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             'player_id': event.get('player_id', ''),
             'new_inventory': event.get('new_inventory', '')
         })
+
+    @database_sync_to_async
+    def change_bunker(self, room_name):
+        try:
+            room = Room.objects.get(name=room_name)
+            room.bunker = Bunker.objects.order_by('?').first()
+            room.save()
+            return room.bunker
+        except Room.DoesNotExist:
+            print("Room not found")
+            return None
+
+    @database_sync_to_async
+    def change_cataclysm(self, room_name):
+        try:
+            room = Room.objects.get(name=room_name)
+            room.cataclysm = Cataclysm.objects.order_by('?').first()
+            room.save()
+            return room.cataclysm
+        except Room.DoesNotExist:
+            print("Room not found")
+            return None
 
     @database_sync_to_async
     def update_player_inventory(self, player, new_inventory):

@@ -37,21 +37,21 @@
         <h2>Player: {{ player.player_name }}</h2>
         <h2>Room: {{ room.name }}</h2>
         <h3>Bunker</h3>
-        <p>Был построен {{ bunker.built_years_ago }} лет назад. {{ bunker.has_hygiene_facilities|yesno:"Есть средства гигиены,Нет средств гигиены" }}, {{ bunker.location_description }}, все спальни на {{ bunker.capacity }} человек</p>
-        <p>Размер бункера: {{ bunker.size_sqm }} кв.м</p>
-        <p>Время нахождения: {{ bunker.duration_of_stay_years }} год</p>
-        <p>Количество еды: на {{ bunker.food_supply_years }} года</p>
-        <p>В бункере присутствует:</p>
+        <p id="bunker-info">Был построен {{ bunker.built_years_ago }} лет назад. {{ bunker.has_hygiene_facilities|yesno:"Есть средства гигиены,Нет средств гигиены" }}, {{ bunker.location_description }}, все спальни на {{ bunker.capacity }} человек</p>
+        <p id="bunker-size">Размер бункера: {{ bunker.size_sqm }} кв.м</p>
+        <p id="bunker-duration">Время нахождения: {{ bunker.duration_of_stay_years }} год</p>
+        <p id="bunker-food">Количество еды: на {{ bunker.food_supply_years }} года</p>
+        <p id="bunker-features">В бункере присутствует:</p>
         <ul>
             {% for feature in bunker.features.all %}
                 <li>{{ feature.name }}</li>
             {% endfor %}
         </ul>
-        <p>Количество мест в бункере: {{ bunker.capacity }}</p>
+        <p id="bunker-capacity">Количество мест в бункере: {{ bunker.capacity }}</p>
         <h3>Cataclysm</h3>
-        <p>{{ cataclysm.year }}: {{ cataclysm.description }}</p>
-        <p>Время до бункера: {{ cataclysm.how_many_time_do_you_have }}</p>
-        <p>Оставшееся население: {{ cataclysm.remaining_population }}</p>
+        <p id="info-cataclism">{{ cataclysm.year }}: {{ cataclysm.description }}</p>
+        <p id="time-to-bunker">Время до бункера: {{ cataclysm.how_many_time_do_you_have }}</p>
+        <p id="people">Оставшееся население: {{ cataclysm.remaining_population }}</p>
 
         <h3>Player Information</h3>
         <table id="myData">
@@ -167,8 +167,22 @@
         {% if is_creator %}
             <h3>Админ панель</h3>
             <button id="start-voting-btn">Начать голосование</button>
+            <button id="kick_player">Вигнати гравця</button>
             <button id="end-voting-btn" style="display: none;">Завершить голосование</button>
         {% endif %}
+        <div id="kickPlayerModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Kick a Player</h2>
+                <select id="kickPlayerSelect">
+                    {% for player in room.players.all %}
+                        <option value="{{ player.id }}">{{ player.player_name }}</option>
+                    {% endfor %}
+                </select>
+                <button id="confirmKickPlayer">Kick Player</button>
+            </div>
+        </div>
+
 
         <div id="voting-section" style="display: none;">
             <h3>Голосование против игрока</h3>
@@ -248,8 +262,40 @@
                         updateInventoryDisplay(inventory.player_name, inventory.new_inventory);
                     });
                     break;
+            case 'bunker_update':
+                console.log('Bunker updated to', data.new_bunker);
+                updateBunkerDisplay(data.new_bunker);
+                break;
+            case 'cataclysm_update':
+                console.log()
+                updateCataclysmDisplay(data.new_cataclysm)
+                break;
+            case 'you_ara_kicked':
+                if (data.player_id === "{{ player.id }}"){
+                    window.location.href = "{% url 'index' %}"
+                }
         }
     };
+
+    function updateBunkerDisplay(newBunker){
+        // Update HTML elements with new bunker information
+        $('#bunker-info').text(`Был построен ${newBunker.built_years_ago} лет назад. ${newBunker.has_hygiene_facilities ? 'Есть средства гигиены' : 'Нет средств гигиены'}, ${newBunker.location_description}, все спальни на ${newBunker.capacity} человек`);
+        $('#bunker-size').text(`Размер бункера: ${newBunker.size_sqm} кв.м`);
+        $('#bunker-duration').text(`Время нахождения: ${newBunker.duration_of_stay_years} год`);
+        $('#bunker-food').text(`Количество еды: на ${newBunker.food_supply_years} года`);
+        $('#bunker-features').empty();
+        // TODO Тут треба буде змінити
+        newBunker.features.forEach(feature => {
+            $('#bunker-features').append(`<li>${feature}</li>`);
+        });
+        $('#bunker-capacity').text(`Количество мест в бункере: ${newBunker.capacity}`)
+    }
+
+    function updateCataclysmDisplay(newCataclysm){
+        $('#info-cataclysm').text(`${newCataclysm.year} : ${newCataclysm.description}`);
+        $('#time-to-bunker').text(`Время до бункера: ${newCataclysm.how_many_time_do_you_have}`);
+        $('#people').text(`Оставшееся население: ${newCataclysm.remaining_population}`)
+    }
 
 
     function activateFeature(player_id, featureId, whichFeature) {
@@ -418,6 +464,32 @@ function toggleSpecialFeature(playerId, featureType, isFeatureOpen) {
         action: action
     }));
 }
+let modal = document.getElementById('kickPlayerModal');
+let btn = document.getElementById('kick_player');
+let span = document.getElementsByClassName('close')[0];
+
+btn.onclick = function (){
+    modal.style.display = 'block';
+}
+
+span.onclick = function () {
+    modal.style.display = 'none'
+}
+
+window.onclick = function(event) {
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+document.getElementById("confirmKickPlayer").onclick = function() {
+    let playerId = document.getElementById("kickPlayerSelect").value;
+    chatSocket.send(JSON.stringify({
+        message: 'kick_player',
+        player_id: playerId
+    }));
+    modal.style.display = "none";
+}
+
 </script>
 
 

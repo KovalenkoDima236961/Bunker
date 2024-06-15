@@ -169,6 +169,7 @@
             <button id="start-voting-btn">Начать голосование</button>
             <button id="kick_player">Вигнати гравця</button>
             <button id="end-voting-btn" style="display: none;">Завершить голосование</button>
+            <button id="end_game-btn">Закінчити гру</button>
         {% endif %}
         <div id="kickPlayerModal" class="modal" style="display:none;">
             <div class="modal-content">
@@ -176,7 +177,9 @@
                 <h2>Kick a Player</h2>
                 <select id="kickPlayerSelect">
                     {% for player in room.players.all %}
+                        {% if player != room.creator %}
                         <option value="{{ player.id }}">{{ player.player_name }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
                 <button id="confirmKickPlayer">Kick Player</button>
@@ -202,6 +205,18 @@
         <div id="voting-results" style="display: none;">
             <h3>Результаты голосования</h3>
             <ul id="results-list"></ul>
+        </div>
+        <div id="changeInventoryModal" style="display:none;" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Change Inventory</h2>
+                <select id="playerSelectForInventoryChange">
+                    {% for player in room.players.all %}
+                    <option value="{{ player.id }}">{{ player.player_name }}</option>
+                    {% endfor %}
+                </select>
+                <button id="confirmInventoryChange">Change Inventory</button>
+            </div>
         </div>
     </div>
 </main>
@@ -270,12 +285,24 @@
                 console.log()
                 updateCataclysmDisplay(data.new_cataclysm)
                 break;
-            case 'you_ara_kicked':
-                if (data.player_id === "{{ player.id }}"){
-                    window.location.href = "{% url 'index' %}"
+            case 'you_are_kicked':
+                removePlayerFromTables(data.player_name);
+                if (data.player_id === "{{ player.id }}") {
+                    console.log("You here")
+                    console.log(data.player_name)
+                    window.location.href = "{% url 'index' %}";
                 }
+                break;
+            case 'end_game':
+                window.location.href = "{% url 'index' %}";
+                break
         }
     };
+
+    function removePlayerFromTables(playerName) {
+        // Select and remove player rows from both tables based on data-player attribute
+        $(`tr[data-player="${playerName}"]`).remove();
+    }
 
     function updateBunkerDisplay(newBunker){
         // Update HTML elements with new bunker information
@@ -310,12 +337,41 @@
                 return;
             }
         }
-        chatSocket.send(JSON.stringify({
+
+        const inventoryChangeForOnePerson = 'inventory_change_for_one_person';
+        if(featureId === inventoryChangeForOnePerson){
+            showInventoryChangeModal(player_id, featureId);
+        }else {
+            chatSocket.send(JSON.stringify({
             message: 'activate_feature',
             player_id: player_id,
             feature_id: featureId,
             room_name: roomName // Including room name in the WebSocket message
-    }))}
+            }))
+        }
+    }
+    // TODO Check if it works
+    function showInventoryChangeModal(player_id, featureId) {
+        var modal = document.getElementById("changeInventoryModal");
+        modal.style.display = "block";
+
+        // Налаштування кнопки підтвердження зміни
+        document.getElementById("confirmInventoryChange").onclick = function() {
+            let selectedPlayerId = document.getElementById("playerSelectForInventoryChange").value;
+            chatSocket.send(JSON.stringify({
+                message: 'change_inventory',
+                player_id: selectedPlayerId,
+                feature_id: featureId,
+                room_name: roomName
+            }));
+            modal.style.display = "none";
+        };
+
+        var span = document.getElementsByClassName("close")[0];
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+    }
 
     function displayResults(votes) {
         const resultsList = $('#results-list');
@@ -485,10 +541,20 @@ document.getElementById("confirmKickPlayer").onclick = function() {
     let playerId = document.getElementById("kickPlayerSelect").value;
     chatSocket.send(JSON.stringify({
         message: 'kick_player',
-        player_id: playerId
+        player_id: playerId,
     }));
     modal.style.display = "none";
 }
+
+$('#end-game').onclick = function () {
+    let room_name = "{{ room.name }}";
+    chatSocket.send(JSON.stringify({
+        message: 'end_game',
+        room_name: room_name,
+    }));
+}
+
+
 
 </script>
 

@@ -50,31 +50,55 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             await self.activate_feature(content)
         elif message_type == 'kick_player':
             player_id = content['player_id']
-            success = await self.kick_player(player_id)
-            if success:
+            player_name = await self.kick_player(player_id)
+            if player_name is not None:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         'type': 'player_kicked',
-                        'player_id': player_id
+                        'player_id': player_id,
+                        'player_name': player_name,
+                    }
+                )
+        elif message_type == 'end_game':
+            room_name = content['room_name']
+            success = await self.end_game(room_name)
+            if success:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'message': 'end_game',
                     }
                 )
 
-    # TODO Check if delete is worked
+    # TODO Check if it works correctly
+    @database_sync_to_async
+    def end_game(self, room_name):
+        try:
+            room = Room.objects.get(name=room_name)
+            room.delete()
+            return True
+        except Room.DoesNotExist:
+            return False
+
     @database_sync_to_async
     def kick_player(self, player_id):
         try:
             player = Player.objects.get(pk=player_id)
+            player_name = player.player_name
             player.delete()  # This deletes the player record from the database
-            return True
+            return player_name
         except Player.DoesNotExist:
-            return False
+            return None
 
     async def player_kicked(self, event):
         player_id = event['player_id']
+        player_name = event['player_name']
+        print(player_name)
         await self.send_json({
             'message': 'you_are_kicked',
-            'player_id': player_id
+            'player_id': player_id,
+            'player_name': player_name
         })
 
     async def activate_feature(self, content):
@@ -85,10 +109,42 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         player = await self.get_player(player_id)
         feature = await self.get_feature(feature_id)
 
-
+        # funcs = {
+        #     "change_inventory": (self.change_inventory, "inventory change", 'inventory_update'),
+        #     "change_health": self.change_health
+        # }
+        #
+        # ability = funcs.get(feature.name)
+        # if ability is None:
+        #     pass
+        # print(ability[1])
+        # res = await (ability[0])(player)
+        #
+        # await self.channel_layer.group_send(
+        #     self.room_group_name,
+        #     {
+        #         'type': 'game_message',
+        #         'message': ability[2],  # Ensure this is being set
+        #         'player_name': player.player_name,
+        #         'new_inventory': res.name
+        #     }
+        # )
 
         # Зробити словник для кожної feature
+        # TODO Зробити таке саме і для inventory_change_for_one_person
         if feature.name == "change_inventory":
+            print("I change the inventory")
+            new_inventory = await self.change_inventory(player)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_message',
+                    'message': 'inventory_update',  # Ensure this is being set
+                    'player_name': player.player_name,
+                    'new_inventory': new_inventory.name
+                }
+            )
+        elif feature.name == "inventory_change_for_one_person":
             print("I change the inventory")
             new_inventory = await self.change_inventory(player)
             await self.channel_layer.group_send(

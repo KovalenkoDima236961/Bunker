@@ -4,7 +4,8 @@ import asyncio
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
-from main.models import Player, Inventory, SpecialFeature, Health, Hobby, Room, Speciality, Phobia, Bunker, Cataclysm
+from main.models import Player, Inventory, SpecialFeature, Health, Hobby, Room, Speciality, Phobia, Bunker, Cataclysm, \
+    HumanTrait
 
 
 # TODO Проблема полягає в тому, що голосуванні не правильно працює
@@ -168,7 +169,31 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                     'new_health': new_health.name
                 }
             )
+        elif feature.name == "health_change_for_one_person":
+            print("I change the health")
+            new_health = await self.change_health(player)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_message',
+                    'message': 'health_update',  # Ensure this is being set
+                    'player_name': player.player_name,
+                    'new_health': new_health.name
+                }
+            )
         elif feature.name == "change_speciality":
+            print("I change the speciality")
+            new_speciality = await self.change_speciality(player)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_message',
+                    'message': 'speciality_update',  # Ensure this is being set
+                    'player_name': player.player_name,
+                    'new_speciality': new_speciality.name
+                }
+            )
+        elif feature.name == "speciality_change_for_one_person":
             print("I change the speciality")
             new_speciality = await self.change_speciality(player)
             await self.channel_layer.group_send(
@@ -192,6 +217,18 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                     'new_hobby': new_hobby.name
                 }
             )
+        elif feature.name == "hobby_change_for_one_person":
+            print("I change the hobby")
+            new_hobby = await self.change_hobby(player)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_message',
+                    'message': 'hobby_update',  # Ensure this is being set
+                    'player_name': player.player_name,
+                    'new_hobby': new_hobby.name
+                }
+            )
         elif feature.name == "change_phobias":
             print("I change the phobias")
             new_phobias = await self.change_phobias(player)
@@ -204,7 +241,31 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                     'new_phobias': new_phobias.name
                 }
             )
+        elif feature.name == "phobias_change_for_one_person":
+            print("I change the phobias")
+            new_phobias = await self.change_phobias(player)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_message',
+                    'message': 'phobias_update',  # Ensure this is being set
+                    'player_name': player.player_name,
+                    'new_phobias': new_phobias.name
+                }
+            )
         elif feature.name == "change_human_traits":
+            print("I change the human traits")
+            new_human_traits = await self.change_human_traits(player)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_message',
+                    'message': 'human_traits_update',  # Ensure this is being set
+                    'player_name': player.player_name,
+                    'new_human_traits': new_human_traits.name
+                }
+            )
+        elif feature.name == "human_traits_for_one_person":
             print("I change the human traits")
             new_human_traits = await self.change_human_traits(player)
             await self.channel_layer.group_send(
@@ -263,7 +324,177 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                     }
                 }
             )
+        elif feature.name == "swap_inventory":
+            print("I swap inventory")
+            current_player_id = content('current_player')
+            swap_player_id = content('swap_player')
+            inventory_names = await self.swap_player_inventories(current_player_id, swap_player_id)
+            if inventory_names[0] is not None:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'message': 'inventory_swap_update',
+                        'current_player': current_player_id,
+                        'swap_player': swap_player_id,
+                        'current_inventory': inventory_names[0],
+                        'swap_inventory': inventory_names[1]
+                    }
+                )
+            else:
+                print("Failed to swap inventories")
+        elif feature.name == "swap_hobby":
+            print("I swap hobby")
+            current_player_id = content('current_player')
+            swap_player_id = content('swap_player')
+            hobby_names = await self.swap_player_hobby(current_player_id, swap_player_id)
+            if hobby_names[0] is not None:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'message': 'hobby_swap_update',
+                        'current_player': current_player_id,
+                        'swap_player': swap_player_id,
+                        'current_hobby': hobby_names[0],
+                        'swap_hobby': hobby_names[1]
+                    }
+                )
+        elif feature.name == "swap_health":
+            print("I swap health")
+            current_player_id = content('current_player')
+            swap_player_id = content('swap_player')
+            health_names = await self.swap_player_health(current_player_id, swap_player_id)
+            if health_names[0] is not None:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'message': 'health_swap_update',
+                        'current_player': current_player_id,
+                        'swap_player': swap_player_id,
+                        'current_health': health_names[0],
+                        'swap_health': health_names[1]
+                    }
+                )
+        elif feature.name == "swap_speciality":
+            print("I swap speciality")
+            current_player_id = content('current_player')
+            swap_player_id = content('swap_player')
+            speciality_names = await self.swap_player_speciality(current_player_id, swap_player_id)
+            if speciality_names[0] is not None:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'message': 'speciality_swap_update',
+                        'current_player': current_player_id,
+                        'swap_player': swap_player_id,
+                        'current_speciality': speciality_names[0],
+                        'swap_speciality': speciality_names[1]
+                    }
+                )
+        elif feature.name == "swap_phobia":
+            print("I swap phobia")
+            current_player_id = content('current_player')
+            swap_player_id = content('swap_player')
+            phobia_names = await self.swap_player_phobia(current_player_id, swap_player_id)
+            if phobia_names[0] is not None:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'message': 'phobia_swap_update',
+                        'current_player': current_player_id,
+                        'swap_player': swap_player_id,
+                        'current_phobia': phobia_names[0],
+                        'swap_phobia': phobia_names[1]
+                    }
+                )
+        elif feature.name == "swap_human_traits":
+            print("I swap human traits")
+            current_player_id = content('current_player')
+            swap_player_id = content('swap_player')
+            human_traits_names = await self.swap_player_human_traits(current_player_id, swap_player_id)
+            if human_traits_names[0] is not None:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'message': 'human_traits_swap_update',
+                        'current_player': current_player_id,
+                        'swap_player': swap_player_id,
+                        'current_human_traits': human_traits_names[0],
+                        'swap_human_traits': human_traits_names[1]
+                    }
+                )
         # Dummy methods to simulate database operations, replace with actual DB calls
+
+    @database_sync_to_async
+    def swap_player_human_traits(self, player_id1, player_id2):
+        try:
+            player1 = Player.objects.get(pk=player_id1)
+            player2 = Player.objects.get(pk=player_id2)
+            player1.a_human_trait, player2.a_human_trait = player2.a_human_trait, player1.a_human_trait
+            player1.save()
+            player2.save()
+            return player1.a_human_trait.name, player2.a_human_trait.name
+        except Player.DoesNotExist:
+            return None, None
+
+    @database_sync_to_async
+    def swap_player_phobia(self, player_id1, player_id2):
+        try:
+            player1 = Player.objects.get(pk=player_id1)
+            player2 = Player.objects.get(pk=player_id2)
+            player1.phobia, player2.phobia = player2.phobia, player1.phobia
+            player1.save()
+            player2.save()
+            return player1.phobia.name, player2.phobia.name
+        except Player.DoesNotExist:
+            return None, None
+
+    @database_sync_to_async
+    def swap_player_speciality(self, player_id1, player_id2):
+        try:
+            player1 = Player.objects.get(pk=player_id1)
+            player2 = Player.objects.get(pk=player_id2)
+            player1.speciality, player2.speciality = player2.speciality, player1.speciality
+            player1.save()
+            player2.save()
+            return player1.speciality.name, player2.speciality.name
+        except Player.DoesNotExist:
+            return None, None
+
+    @database_sync_to_async
+    def swap_player_health(self, player_id1, player_id2):
+        try:
+            player1 = Player.objects.get(pk=player_id1)
+            player2 = Player.objects.get(pk=player_id2)
+            player1.health, player2.health = player2.health, player1.health
+            player1.save()
+            player2.save()
+            return player1.health.name, player2.health.name
+        except Player.DoesNotExist:
+            return None, None
+
+    @database_sync_to_async
+    def swap_player_hobby(self, player_id1, player_id2):
+        try:
+            player1 = Player.objects.get(pk=player_id1)
+            player2 = Player.objects.get(pk=player_id2)
+            player1.hobby, player2.hobby = player2.hobby, player1.hobby
+            player1.save()
+            player2.save()
+            return player1.hobby.name, player2.hobby.name
+        except Player.DoesNotExist:
+            return None, None
+
+    @database_sync_to_async
+    def swap_player_inventories(self, player_id1, player_id2):
+        try:
+            player1 = Player.objects.get(pk=player_id1)
+            player2 = Player.objects.get(pk=player_id2)
+            player1.inventory, player2.inventory = player2.inventory, player1.inventory
+            player1.save()
+            player2.save()
+            return player1.inventory.name, player2.inventory.name
+        except Player.DoesNotExist:
+            return None, None
 
     async def game_message(self, event):
         # Example of handling a generic game message
@@ -408,6 +639,20 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         return new_inventory
 
     @database_sync_to_async
+    def change_human_traits(self, player):
+        new_human_traits = HumanTrait.objects.order_by('?').first()
+        player.a_human_trait = new_human_traits
+        player.save()
+        return new_human_traits
+
+    @database_sync_to_async
+    def change_phobias(self, player):
+        new_phobia = Phobia.objects.order_by('?').first()
+        player.phobia = new_phobia
+        player.save()
+        return new_phobia
+
+    @database_sync_to_async
     def change_health(self, player):
         new_health = Health.objects.order_by('?').first()
         player.health = new_health
@@ -436,6 +681,12 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             'new_inventory': event['new_inventory']
         })
 
+    @database_sync_to_async
+    def get_candidates(self):
+        # Отримати всіх активних гравців з кімнати
+        room = Room.objects.get(name=self.room_name)
+        return list(room.players.all())
+
     async def handle_voting(self, content):
         message_type = content['message']
 
@@ -457,28 +708,37 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                 await self.end_voting()
 
         elif message_type == 'start_voting':
-            # Ініціалізуємо голосування
             self.votes = {}
             self.voted_players = set()
+            candidates = await self.get_candidates()  # Асинхронне отримання кандидатів
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'game_message',
-                    'message': 'start_voting'
+                    'message': 'start_voting',
+                    'candidates': [{'id': candidate.id, 'name': candidate.player_name} for candidate in candidates]
                 }
             )
-
         elif message_type == 'end_voting':
             await self.end_voting()
 
     async def end_voting(self):
-        # Надсилання результатів голосування
+        # Calculate results
+        results = {candidate: len(votes) for candidate, votes in self.votes.items()}
+        winner = max(results, key=results.get)
+        loser = min(results, key=results.get)  # Simplified example
+
+        # Kick the player with the least votes
+        await self.kick_player(loser)
+
+        # Notify all clients
         await self.channel_layer.group_send(
             self.room_group_name,
             {
-                'type': 'game_message',
-                'message': 'end_voting',
-                'votes': {k: len(v) for k, v in self.votes.items()}  # Sending counts instead of voter lists
+                "type": "voting_ended",
+                "results": results,
+                "winner": winner,
+                "loser": loser
             }
         )
 

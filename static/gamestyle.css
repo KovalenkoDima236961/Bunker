@@ -1,98 +1,114 @@
-body, html {
+/* lobby.css */
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #202020;
+    color: #f0f0f0;
     margin: 0;
     padding: 0;
-    height: 100%;
-    font-family: Arial, sans-serif;
+    background-image: url('image/background.webp');
+    background-size: cover;
 }
 
-.navbar {
+header {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo img {
+    height: 50px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    color: #f0f0f0;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+main {
+    width: 60%;
+    margin: 50px auto;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.lobby h1 {
+    color: #ffcc00;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#playerList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#playerList li {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #111;
-    padding: 10px 20px;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 2;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+    border-radius: 4px;
 }
 
-.navbar .logo img {
-    height: 40px;
-    margin-right: 10px;
-}
-
-.navbar .menu a {
+.remove-btn {
+    background-color: #ff6666;
     color: white;
-    text-decoration: none;
-    padding: 14px 20px;
-    margin: 0 10px;
-    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 5px 10px;
 }
 
-.navbar .menu a:hover, .navbar .menu a.active {
-    color: #ffa500;
+.remove-btn:hover {
+    background-color: #ff3333;
 }
 
-.parallax {
-    height: 100vh;
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+.control-buttons {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.control-buttons button {
+    width: 48%;
+    padding: 10px;
+    background-color: #666;
     color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.control-buttons button:hover {
+    background-color: #777;
+}
+
+footer {
     text-align: center;
-    background-color: rgba(0, 0, 0, 0.5);
-    background-blend-mode: overlay;
-}
-
-.content {
-    background: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 10px;
-}
-
-h1, h2 {
-    margin: 0 0 20px 0;
-}
-
-.close-room-btn {
-    background-color: #ff0000;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-
-.exit-room-btn {
-    background-color: #ff0000;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-.exit-room-btn:hover {
-    background-color: #cc0000;
-}
-.close-room-btn:hover {
-    background-color: #cc0000;
-}
-
-.players-list ul {
-    list-style: none;
-    padding: 0;
-}
-
-.players-list li {
-    margin: 10px 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #f0f0f0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }

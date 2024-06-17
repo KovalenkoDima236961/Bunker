@@ -8,194 +8,191 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-<nav class="navbar">
+<header>
     <div class="logo">
-        <img src="{% static 'image/LEGO_logo.svg.png' %}" alt="Bunker Logo">
-        <span>BUNKER ONLINE</span>
+        <img src="{% static 'image/logo.webp'  %}" alt="Bunker Game Logo">
     </div>
-    <div class="menu">
-        <a href="{% url 'index' %}" class="active">Главная</a>
-        <a href="#rules">Правила игры</a>
-        <a href="#wiki">Вики</a>
-        <a href="#updates">Обновления</a>
-    </div>
-</nav>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#rules">Rules</a></li>
+            <li><a href="#settings">Settings</a></li>
+        </ul>
+    </nav>
+</header>
 <main>
-    <div class="parallax" style="background-image: url('{% static 'image/giphy.gif' %}');">
-        <div class="content">
-            <h1>Ожидание игроков</h1>
+    <section class="lobby">
+        <h1>Game Lobby</h1>
+        <ul id="playerList">
+            {% for players in players %}
+                <li>
+                    {{ players.name }}
+                    {% if is_creator %}
+                        {% if players.player_name != room.creator.player_name %}
+                        <button class="remove-btn" data-player-id="{{ players.player_name }}">Remove</button>
+                         {% endif %}   
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>No players in the lobby.</li>
+            {% endfor %}
+        </ul>
+        <div class="control-buttons">
             {% if is_creator %}
-                <button class="close-room-btn" id="close-room-btn">Закрыть комнату!</button>
+                <button id="startGameBtn">Start Game</button>
+                <button id="endGameBtn">End Game</button>
             {% else %}
-                <button class="close-room-btn" id="exit-room-btn">Вийти з кімнати</button>
-            {% endif %}
-            <p>Чтобы начать игру нужно как минимум 6 человек. (<span id="player-count">{{ room.players.count }}</span>/15)</p>
-            <p id="href_for_room"></p>
-            <div class="players-list">
-                <h2>Кандидаты в бункер</h2>
-                <ul id="players-list">
-                    {% for player in room.players.all %}
-                        <li>
-                            {{ player.player_name }}
-                            {% if is_creator %}
-                                <button class="remove-player-btn" data-player-id="{{ player.id }}">✖</button>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-{#            Треба поставити апдейт на кнопку#}
-            {% if room.players.count > 1 and is_creator %}
-                <button id="start-game-btn" style="display: none;">Розпочати гру</button>
+                <button class="close-room-btn" id="exit-room-btn">Exit room</button>
             {% endif %}
         </div>
-    </div>
+    </section>
 </main>
 <script>
-    const path = window.location.href;
-    $('#href_for_room').innerText = path;
+    $(document).ready(function () {
+        function updatePlayerList() {
+            $.ajax({
+                url: '{% url "number_of_people" room.name %}',
+                method: 'GET',
+                success: function(data) {
+                    $('#player-count').text(data.count);
+                    let playersList = $('#playerList');
+                    playersList.empty();
+                    data.players.forEach(function(player) {
+                        let playerItem = '<li>' + player.player_name;
+                        {% if is_creator %}
+                            playerItem += ' <button class="remove-btn" data-player-id="' + player.player_name + '">✖</button>';
+                        {% endif %}
+                        playerItem += '</li>';
+                        playersList.append(playerItem);
+                    });
 
-    function updatePlayerCount() {
-        $.ajax({
-            url: '{% url "number_of_people" room.name %}',
-            method: 'GET',
-            success: function(data) {
-                $('#player-count').text(data.count);
-                let playersList = $('#players-list');
-                playersList.empty();
-                data.players.forEach(function(player) {
-                    let playerItem = '<li>' + player.player_name;
-                    {% if is_creator %}
-                        playerItem += ' <button class="remove-player-btn" data-player-id="' + player.player_name + '">✖</button>';
-                    {% endif %}
-                    playerItem += '</li>';
-                    playersList.append(playerItem);
-                });
-            
-                if (data.count > 1) {
-                    $('#start-game-btn').show();
-                } else {
-                    $('#start-game-btn').hide();
+                    if (data.count > 1) {
+                        $('#startGameBtn').show();
+                    } else {
+                        $('#startGameBtn').hide();
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
                 }
-            },
-            error: function(error) {
-                console.error('Error:', error);
-            }
+            });
+        }
+
+        function checkRoomExists() {
+            $.ajax({
+                url: '{% url "game_room" room.name %}',
+                method: 'GET',
+                statusCode: {
+                    404: function() {
+                        window.location.href = '{% url "index" %}';
+                    }
+                }
+            });
+        }
+
+        function checkIfPlayerStillInRoom() {
+            $.ajax({
+                url: '{% url "check_player_in_room" room.name %}',
+                method: 'GET',
+                success: function(data) {
+                    if (data.status === 'removed') {
+                        window.location.href = '{% url "index" %}';
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        function checkIfGameStarted() {
+            $.ajax({
+                url: '{% url "check_game_started" room.name %}',
+                method: 'GET',
+                success: function(data) {
+                    if (data.is_game_started) {
+                        window.location.href = '{% url "start_game" room.name %}';
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        setInterval(updatePlayerList, 1000);
+        setInterval(checkRoomExists, 1000);
+        setInterval(checkIfPlayerStillInRoom, 1000);
+        setInterval(checkIfGameStarted, 1000);
+
+        $(document).on('click', '.remove-btn', function() {
+            const playerId = $(this).data('player-id');
+            $.ajax({
+                url: '{% url "remove_player" room.name %}',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                data: {
+                    'player_id': playerId
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        updatePlayerList();
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
         });
-    }
 
-    function checkRoomExists() {
-        $.ajax({
-            url: '{% url "game_room" room.name %}',
-            method: 'GET',
-            statusCode: {
-                404: function() {
-                    window.location.href = '{% url "index" %}';
+        $('#endGameBtn').click(function() {
+            $.ajax({
+                url: '{% url "close_room" room.name %}',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        window.location.href = '{% url "index" %}';
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
                 }
-            }
+            });
         });
-    }
 
-    setInterval(updatePlayerCount, 1000);
-    setInterval(checkRoomExists, 1000);
-    setInterval(checkIfPlayerStillInRoom, 1000);
-    setInterval(checkIfGameStarted, 1000);
-
-    $('#exit-room-btn').click(function (){
-        $.ajax({
-            url: '{% url "exit_room" room.name %}',
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            success: function(data) {
-                if (data.status === 'success') {
-                    window.location.href = '{% url "index" %}';
-                } else {
-                    alert(data.message);
+        $('#exit-room-btn').click(function (){
+            $.ajax({
+                url: '{% url "exit_room" room.name %}',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    if (data.status === 'success') {
+                        window.location.href = '{% url "index" %}';
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
                 }
-            },
-            error: function(error) {
-                console.error('Error:', error);
-            }
-        })
-    })
-
-    function checkIfPlayerStillInRoom() {
-        $.ajax({
-            url: '{% url "check_player_in_room" room.name %}',
-            method: 'GET',
-            success: function(data) {
-                if (data.status === 'removed') {
-                    window.location.href = '{% url "index" %}';
-                }
-            },
-            error: function(error) {
-                console.error('Error:', error);
-            }
+            });
         });
-    }
 
-    $('#close-room-btn').click(function() {
-        $.ajax({
-            url: '{% url "close_room" room.name %}',
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            success: function(data) {
-                if (data.status === 'success') {
-                    window.location.href = '{% url "index" %}';
-                } else {
-                    alert(data.message);
-                }
-            },
-            error: function(error) {
-                console.error('Error:', error);
-            }
+        $('#startGameBtn').click(function() {
+            window.location.href = '{% url "start_game" room.name %}';
         });
     });
-
-    $(document).on('click', '.remove-player-btn', function() {
-        const playerId = $(this).data('player-id');
-        $.ajax({
-            url: '{% url "remove_player" room.name %}',
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            data: {
-                'player_id': playerId
-            },
-            success: function(data) {
-                if (data.status === 'success') {
-                    updatePlayerCount();
-                } else {
-                    alert(data.message);
-                }
-            },
-            error: function(error) {
-                console.error('Error:', error);
-            }
-        });
-    });
-    $('#start-game-btn').click(function() {
-        window.location.href = '{% url "start_game" room.name %}';
-    });
-    function checkIfGameStarted() {
-        $.ajax({
-            url: '{% url "check_game_started" room.name %}',
-            method: 'GET',
-            success: function(data) {
-                if (data.is_game_started) {
-                    window.location.href = '{% url "start_game" room.name %}';
-                }
-            },
-            error: function(error) {
-                console.error('Error:', error);
-            }
-        });
-    }
 </script>
 </body>
 </html>

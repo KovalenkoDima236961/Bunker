@@ -5,68 +5,89 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-<nav class="navbar">
+<header>
     <div class="logo">
-        <img src="{% static 'image/LEGO_logo.svg.png' %}" alt="Bunker Logo">
-        <span>BUNKER ONLINE</span>
+        <img src="{% static 'image/logo.webp'  %}" alt="Bunker Game Logo">
     </div>
-    <div class="menu">
-        <a href="#home" class="active">Главная</a>
-        <a href="#rules">Правила игры</a>
-        <a href="#wiki">Вики</a>
-        <a href="#updates">Обновления</a>
-    </div>
-</nav>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#rules">Rules</a></li>
+            <li><a href="#settings">Settings</a></li>
+        </ul>
+    </nav>
+</header>
 <main>
-    <div class="parallax" style="background-image: url('{% static 'image/giphy.gif' %}');"></div>
-
-    <div class="content">
-        <h1>BunkerOnline</h1>
-        <p>Добро пожаловать на сайт игры «Бункер Онлайн»</p>
-        <p>В игре ты получаешь уникального персонажа, которым постараешься доказать всем, что именно ты должен попасть в бункер, чтобы спастись! Ты должен быть готов к любым препятствиям. Остальные игроки, пытающиеся выжить, будут доказывать обратное...</p>
-    </div>
-    <div class="content">
-        <div class="form-container">
-            <h2>Создание игровой комнаты</h2>
-            <form method="post" action="{% url 'game' %}">
-                {% csrf_token %}
-                <label for="username">Ваше имя *</label>
-                <input type="text" id="username" name="player_name" required>
-                <div class="g-recaptcha" data-sitekey="your-site-key"></div>
-                <input type="submit" value="Создать игру!">
-            </form>
-        </div>
-    </div>
-    <div class="content">
-        <div class="form-container">
-            <h2>Присоединиться к игровой комнате</h2>
-            <form method="post" action="{% url 'join_room' %}">
-                {% csrf_token %}
-                <label for="room_name">Имя комнаты *</label>
-                <input type="text" id="room_name" name="room_name" required>
-                <label for="username">Ваше имя *</label>
-                <input type="text" id="username" name="player_name" required>
-                <input type="submit" value="Присоединиться">
-            </form>
-        </div>
-    </div>
-    <div class="content">
-        <div class="form-container">
-            <h2>Ваши игровые комнаты</h2>
-{#            TODO Тут треба поставити щоб воно перевіряло, чи є кімната#}
-            <ul>
-                {% for room in player_rooms %}
-                    <li>
-                        <a href="{% url 'game_room' room.name %}">{{ room.name }}</a>
-                    </li>
-                {% empty %}
-                    <li>Вы не присоединились ни к одной игровой комнате.</li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
+    <section class="create-room">
+        <h1>Create Game Room</h1>
+        <form method="post" action="{% url 'game' %}">
+            {% csrf_token %}
+            <label for="username">Your name *</label>
+            <input type="text" id="username" name="player_name" required>
+            <div class="g-recaptcha" data-sitekey="your-site-key"></div>
+            <input type="submit" value="Создать игру!">
+        </form>
+    </section>
+    <section class="join-room">
+        <h1>Join Game Room</h1>
+        <form method="post" action="{% url 'join_room' %}">
+            {% csrf_token %}
+            <label for="room_name">Room name *</label>
+            <input type="text" id="room_name" name="room_name" required>
+            <label for="username">Your name *</label>
+            <input type="text" id="username" name="player_name" required>
+            <input type="submit" value="Присоединиться">
+        </form>
+    </section>
+    <section class="ongoing-games">
+        <h1>Ongoing Games</h1>
+        <ul id="gameList">
+            {% for room in player_rooms %}
+                <li>
+                    <a href="{% url 'game_room' room.name %}">{{ room.name }}</a>
+                </li>
+            {% empty %}
+                <li>You haven't joined any game rooms.</li>
+            {% endfor %}
+        </ul>
+    </section>
 </main>
+<footer>
+    © 2024 Bunker Game. All rights reserved.
+</footer>
+<script>
+    function fetchPlayerRoom(){
+        $.ajax({
+            url: "{% url 'player_rooms_list' %}",
+            type: "GET",
+            success: function(data) {
+                const gameList = $('#gameList');
+                gameList.empty(); // Clear the current list
+
+                if (data.rooms.length === 0) {
+                    gameList.append('<li>You haven\'t joined any game rooms.</li>');
+                } else {
+                    data.rooms.forEach(room_game => {
+                        const listItem = $('<li>');
+                        const link = $('<a>').attr('href', "{% url 'game_room' 'room_game.name' %}").text(room_game.name);
+                        listItem.append(link);
+                        gameList.append(listItem);
+                    });
+                }
+            },
+            error: function(error) {
+                console.error('Error fetching player rooms:', error);
+            }
+        });
+    }
+
+    // Fetch player rooms list every 10 seconds
+    setInterval(fetchPlayerRoom, 10000);
+    // Fetch the list when the page loads
+    $(document).ready(fetchPlayerRoom);
+</script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 import json
 import asyncio
+from collections import Counter
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
@@ -683,7 +684,6 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def get_candidates(self):
-        # Отримати всіх активних гравців з кімнати
         room = Room.objects.get(name=self.room_name)
         return list(room.players.all())
 
@@ -694,23 +694,22 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             voter = content['voter']
             vote = content['vote']
 
-            # Ініціалізуємо список для кандидата, якщо він ще не існує
             if vote not in self.votes:
                 self.votes[vote] = []
-            # Додаємо голос, якщо цей виборець ще не голосував за цього кандидата
             if voter not in self.votes[vote]:
                 self.votes[vote].append(voter)
                 self.voted_players.add(voter)
 
-            # Перевірка, чи всі гравці проголосували
-            if len(self.voted_players) >= self.scope["session"]["number_of_players"]:
-                # If all have voted, automatically end voting
+            room = await database_sync_to_async(Room.objects.get)(name=self.room_name)
+            total_players = await database_sync_to_async(room.players.count)()
+
+            if len(self.voted_players) >= total_players:
                 await self.end_voting()
 
         elif message_type == 'start_voting':
             self.votes = {}
             self.voted_players = set()
-            candidates = await self.get_candidates()  # Асинхронне отримання кандидатів
+            candidates = await self.get_candidates()
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -723,24 +722,41 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             await self.end_voting()
 
     async def end_voting(self):
-        # Calculate results
         results = {candidate: len(votes) for candidate, votes in self.votes.items()}
-        winner = max(results, key=results.get)
-        loser = min(results, key=results.get)  # Simplified example
+        max_votes = max(results.values())
+        potential_losers = [candidate for candidate, votes in results.items() if votes == max_votes]
 
-        # Kick the player with the least votes
-        await self.kick_player(loser)
+        if len(potential_losers) > 1:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "game_message",
+                    "message": "tie_voting",
+                    "tiedCandidates": [{'id': candidate, 'name': candidate} for candidate in potential_losers]
+                }
+            )
+        else:
+            loser = potential_losers[0]
+            await self.kick_player(loser)
 
-        # Notify all clients
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                "type": "voting_ended",
-                "results": results,
-                "winner": winner,
-                "loser": loser
-            }
-        )
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "voting_ended",
+                    "results": results,
+                    "loser": loser
+                }
+            )
+
+    async def voting_ended(self, event):
+        results = event['results']
+        loser = event['loser']
+
+        await self.send_json({
+            'message': 'end_voting',
+            'results': results,
+            'loser': loser
+        })
 
     async def game_message(self, event):
         # Відправлення повідомлень клієнтам

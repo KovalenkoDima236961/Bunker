@@ -515,10 +515,10 @@
     function displayResults(votes) {
         const resultsList = $('#results-list');
         resultsList.empty();
-        Object.entries(votes).forEach(([player, voters]) => {
-            resultsList.append(`<li>${player}: ${voters.length} votes</li>`);
+        Object.entries(results).forEach(([player, votes]) => {
+            resultsList.append(`<li>${player}: ${votes} votes</li>`);
         });
-        $('#voting-results').show();  // Переконайтесь, що цей блок показується
+        $('#voting-results').show();
     }
 
 
@@ -640,14 +640,13 @@ function handleUpdate(data) {
         $('#voting-section').hide();
         $('#end-voting-btn').hide();
         $('#start-voting-btn').show();
-        displayVotingResults(data);
-
-        // Check if there's a tie
+        displayResults(data.results);
+    
         if(data.tie) {
             alert('A tie has occurred! Starting a new round of voting.');
             handleStartVoting({candidates: data.tiedCandidates});
         } else {
-            alert(`Voting complete. Winner: ${data.winner}`);
+            alert(`Voting complete. Loser: ${data.loser}`);
         }
     }
 

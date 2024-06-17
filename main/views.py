@@ -341,3 +341,10 @@ def vote_against_player(request):
 #         return JsonResponse({'status': 'success', 'message': 'Feature locked'})
 #
 #     return JsonResponse({'status': 'error', 'message': 'Invalid action or state'})
+
+# TODO Check if it works
+def player_rooms_list(request):
+    player = request.user
+    rooms = Room.objects.filter(players=player)
+    rooms_list = [{"name": room.name} for room in rooms]
+    return JsonResponse({"rooms": rooms_list})

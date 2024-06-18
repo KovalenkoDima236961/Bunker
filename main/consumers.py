@@ -36,6 +36,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, content):
         message_type = content.get('message')
+        print(message_type)
 
         if message_type == 'update':
             await self.channel_layer.group_send(
@@ -49,6 +50,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         elif message_type in ['start_voting', 'vote', 'end_voting']:
             await self.handle_voting(content)
         elif message_type == 'activate_feature':
+            print(content)
             await self.activate_feature(content)
         elif message_type == 'kick_player':
             player_id = content['player_id']
@@ -64,14 +66,21 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                 )
         elif message_type == 'end_game':
             room_name = content['room_name']
+            print(room_name)
             success = await self.end_game(room_name)
             if success:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
+                        'type': 'end_game_type',
                         'message': 'end_game',
                     }
                 )
+
+    async def end_game_type(self, event):
+        await self.send_json({
+            'message': event['message'],  # This key should exist
+        })
 
     # TODO Check if it works correctly
     @database_sync_to_async
@@ -104,9 +113,14 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
         })
 
     async def activate_feature(self, content):
+        print(content)
+        swap_player_id = None
         player_id = content['player_id']
         feature_id = content['feature_id']  # Change from 'feature_type' to 'feature_id'
         room_name = content['room_name']
+        if 'swap_player_id' in content:
+            swap_player_id = content['swap_player_id']
+
 
         player = await self.get_player(player_id)
         feature = await self.get_feature(feature_id)
@@ -325,18 +339,18 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                     }
                 }
             )
-        elif feature.name == "swap_inventory":
+        elif feature.name == "swap_inventory":#TODO Для всіх свапів ще написати щоб вертало було чи не відкрито воно
             print("I swap inventory")
-            current_player_id = content('current_player')
-            swap_player_id = content('swap_player')
-            inventory_names = await self.swap_player_inventories(current_player_id, swap_player_id)
+            inventory_names = await self.swap_player_inventories(player_id, swap_player_id)
+            swap_player = await self.get_player(swap_player_id)
             if inventory_names[0] is not None:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
+                        'type': 'swap',
                         'message': 'inventory_swap_update',
-                        'current_player': current_player_id,
-                        'swap_player': swap_player_id,
+                        'current_player': player.player_name,
+                        'swap_player': swap_player.player_name,
                         'current_inventory': inventory_names[0],
                         'swap_inventory': inventory_names[1]
                     }
@@ -345,80 +359,81 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
                 print("Failed to swap inventories")
         elif feature.name == "swap_hobby":
             print("I swap hobby")
-            current_player_id = content('current_player')
-            swap_player_id = content('swap_player')
-            hobby_names = await self.swap_player_hobby(current_player_id, swap_player_id)
+            print(content) # Тут я маю таке {'message': 'activate_feature', 'player_id': '115', 'swap_player_id': '116', 'feature_id': '24', 'room_name': 'z56t1epvwm'}
+            hobby_names = await self.swap_player_hobby(player_id, swap_player_id)
+            swap_player = await self.get_player(swap_player_id)
             if hobby_names[0] is not None:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
+                        'type': 'swap',
                         'message': 'hobby_swap_update',
-                        'current_player': current_player_id,
-                        'swap_player': swap_player_id,
+                        'current_player': player.player_name,
+                        'swap_player': swap_player.player_name,
                         'current_hobby': hobby_names[0],
                         'swap_hobby': hobby_names[1]
                     }
                 )
         elif feature.name == "swap_health":
             print("I swap health")
-            current_player_id = content('current_player')
-            swap_player_id = content('swap_player')
-            health_names = await self.swap_player_health(current_player_id, swap_player_id)
+            health_names = await self.swap_player_health(player_id, swap_player_id)
+            swap_player = await self.get_player(swap_player_id)
             if health_names[0] is not None:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
+                        'type': 'swap',
                         'message': 'health_swap_update',
-                        'current_player': current_player_id,
-                        'swap_player': swap_player_id,
+                        'current_player': player.player_name,
+                        'swap_player': swap_player.player_name,
                         'current_health': health_names[0],
                         'swap_health': health_names[1]
                     }
                 )
         elif feature.name == "swap_speciality":
             print("I swap speciality")
-            current_player_id = content('current_player')
-            swap_player_id = content('swap_player')
-            speciality_names = await self.swap_player_speciality(current_player_id, swap_player_id)
+            speciality_names = await self.swap_player_speciality(player_id, swap_player_id)
+            swap_player = await self.get_player(swap_player_id)
             if speciality_names[0] is not None:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
+                        'type': 'swap',
                         'message': 'speciality_swap_update',
-                        'current_player': current_player_id,
-                        'swap_player': swap_player_id,
+                        'current_player': player.player_name,
+                        'swap_player': swap_player.player_name,
                         'current_speciality': speciality_names[0],
                         'swap_speciality': speciality_names[1]
                     }
                 )
         elif feature.name == "swap_phobia":
             print("I swap phobia")
-            current_player_id = content('current_player')
-            swap_player_id = content('swap_player')
-            phobia_names = await self.swap_player_phobia(current_player_id, swap_player_id)
+            phobia_names = await self.swap_player_phobia(player_id, swap_player_id)
+            swap_player = await self.get_player(swap_player_id)
             if phobia_names[0] is not None:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
+                        'type': 'swap',
                         'message': 'phobia_swap_update',
-                        'current_player': current_player_id,
-                        'swap_player': swap_player_id,
+                        'current_player': player.player_name,
+                        'swap_player': swap_player.player_name,
                         'current_phobia': phobia_names[0],
                         'swap_phobia': phobia_names[1]
                     }
                 )
         elif feature.name == "swap_human_traits":
             print("I swap human traits")
-            current_player_id = content('current_player')
-            swap_player_id = content('swap_player')
-            human_traits_names = await self.swap_player_human_traits(current_player_id, swap_player_id)
+            human_traits_names = await self.swap_player_human_traits(player_id, swap_player_id)
+            swap_player = await self.get_player(swap_player_id)
             if human_traits_names[0] is not None:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
+                        'type': 'swap',
                         'message': 'human_traits_swap_update',
-                        'current_player': current_player_id,
-                        'swap_player': swap_player_id,
+                        'current_player': player.player_name,
+                        'swap_player': swap_player.player_name,
                         'current_human_traits': human_traits_names[0],
                         'swap_human_traits': human_traits_names[1]
                     }
@@ -503,6 +518,22 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             'message': event['message'],  # This key should exist
             'player_id': event.get('player_id', ''),
             'new_inventory': event.get('new_inventory', '')
+        })
+
+    async def swap(self, event):
+        message = event['message']
+        current_player = event['current_player']
+        swap_player = event['swap_player']
+        current_attribute = event.get('current_inventory') or event.get('current_hobby') or event.get('current_health') or event.get('current_speciality') or event.get('current_phobia') or event.get('current_human_traits')
+        swap_attribute = event.get('swap_inventory') or event.get('swap_hobby') or event.get('swap_health') or event.get('swap_speciality') or event.get('swap_phobia') or event.get('swap_human_traits')
+
+        await self.send_json({
+            'type': 'swap_update',
+            'message': message,
+            'current_player': current_player,
+            'swap_player': swap_player,
+            'current_attribute': current_attribute,
+            'swap_attribute': swap_attribute
         })
 
     @database_sync_to_async
@@ -662,7 +693,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def change_speciality(self, player):
-        new_speciality = SpecialFeature.objects.order_by('?').first()
+        new_speciality = Speciality.objects.order_by('?').first()
         player.speciality = new_speciality
         player.save()
         return new_speciality

@@ -1,0 +1,83 @@
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #202020;
+    color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo img {
+    height: 50px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: #f0f0f0;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+main {
+    width: 80%;
+    margin: 20px auto;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.rules h1, .rules h2 {
+    color: #ffcc00;
+}
+
+.rules p {
+    margin: 10px 0;
+}
+
+.rules ul {
+    list-style: none;
+    padding: 0;
+}
+
+.rules ul li {
+    margin: 5px 0;
+}
+
+.rules table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.rules table th, .rules table td {
+    border: 1px solid #f0f0f0;
+    padding: 10px;
+    text-align: left;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #f0f0f0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}

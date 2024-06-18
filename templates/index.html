@@ -14,9 +14,10 @@
     </div>
     <nav>
         <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#rules">Rules</a></li>
-            <li><a href="#settings">Settings</a></li>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'rules' %}">Rules</a></li>
+            <li><a href="{% url 'settings' %}">Settings</a></li>
+            <li><a href="{% url 'about' %}">About developer</a></li>
         </ul>
     </nav>
 </header>
@@ -28,7 +29,7 @@
             <label for="username">Your name *</label>
             <input type="text" id="username" name="player_name" required>
             <div class="g-recaptcha" data-sitekey="your-site-key"></div>
-            <input type="submit" value="Создать игру!">
+            <input type="submit" value="Create Game!">
         </form>
     </section>
     <section class="join-room">
@@ -39,7 +40,7 @@
             <input type="text" id="room_name" name="room_name" required>
             <label for="username">Your name *</label>
             <input type="text" id="username" name="player_name" required>
-            <input type="submit" value="Присоединиться">
+            <input type="submit" value="Join">
         </form>
     </section>
     <section class="ongoing-games">
@@ -54,6 +55,10 @@
             {% endfor %}
         </ul>
     </section>
+    <audio id="background-music" loop>
+        <source src="{% static 'music/music.mp3' %}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
 </main>
 <footer>
     © 2024 Bunker Game. All rights reserved.
@@ -88,6 +93,48 @@
     setInterval(fetchPlayerRoom, 10000);
     // Fetch the list when the page loads
     $(document).ready(fetchPlayerRoom);
+
+    function toggleMusic() {
+        const audio = document.getElementById('background-music');
+        const isMusicOn = localStorage.getItem('isMusicOn') === 'true';
+        if (isMusicOn) {
+            audio.pause();
+            localStorage.setItem('isMusicOn', 'false');
+        } else {
+            audio.play();
+            localStorage.setItem('isMusicOn', 'true');
+        }
+    }
+
+    function setVolume(volume) {
+        const audio = document.getElementById('background-music');
+        audio.volume = volume / 100;
+        localStorage.setItem('volume', volume);
+    }
+
+    $(document).ready(function() {
+        const audio = document.getElementById('background-music');
+        const isMusicOn = localStorage.getItem('isMusicOn') === 'true';
+        const volume = localStorage.getItem('volume') || 50;
+
+        audio.volume = volume / 100;
+        if (isMusicOn) {
+            audio.play();
+        }
+
+        $('#volume').on('input', function() {
+            setVolume(this.value);
+        });
+
+        $('#music-toggle').click(function() {
+            toggleMusic();
+            $(this).text(audio.paused ? 'Turn On' : 'Turn Off');
+        });
+
+        if (isMusicOn) {
+            $('#music-toggle').text('Turn Off');
+        }
+    });
 </script>
 </body>
 </html>

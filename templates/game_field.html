@@ -55,60 +55,60 @@
 
         <h3>Player Information</h3>
         <table id="myData">
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Пол</th>
-                <td>{{ player.gender.name }}</td>
+                <td id="myGender">{{ player.gender.name }}</td>
                 <td><button class="{% if player.is_gender_open %}unlocked{% else %}locked{% endif %}" data-info="gender" data-value="{{ player.gender.name }}">{% if player.is_gender_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Телосложение</th>
-                <td>{{ player.body_build.name }}</td>
+                <td id="myBodyBuild">{{ player.body_build.name }}</td>
                 <td><button class="{% if player.is_body_build_open %}unlocked{% else %}locked{% endif %}" data-info="body_build" data-value="{{ player.body_build.name }}">{% if player.is_body_build_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Человеческая черта</th>
-                <td>{{ player.a_human_trait.name }}</td>
+                <td id="myHumanTrait">{{ player.a_human_trait.name }}</td>
                 <td><button class="{% if player.is_human_trait_open %}unlocked{% else %}locked{% endif %}" data-info="a_human_trait" data-value="{{ player.a_human_trait.name }}">{% if player.is_human_trait_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Специальность</th>
-                <td>{{ player.speciality.name }}</td>
+                <td id="mySpeciality">{{ player.speciality.name }}</td>
                 <td><button class="{% if player.is_speciality_open %}unlocked{% else %}locked{% endif %}" data-info="speciality" data-value="{{ player.speciality.name }}">{% if player.is_speciality_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Здоровье</th>
-                <td>{{ player.health.name }}</td>
+                <td id="myHealth">{{ player.health.name }}</td>
                 <td><button class="{% if player.is_health_open %}unlocked{% else %}locked{% endif %}" data-info="health" data-value="{{ player.health.name }}">{% if player.is_health_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Хобби / Увлечение</th>
-                <td>{{ player.hobby.name }}</td>
+                <td id="myHobby">{{ player.hobby.name }}</td>
                 <td><button class="{% if player.is_hobby_open %}unlocked{% else %}locked{% endif %}" data-info="hobby" data-value="{{ player.hobby.name }}">{% if player.is_hobby_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Фобия / Страх</th>
-                <td>{{ player.phobia.name }}</td>
+                <td id="myPhobia">{{ player.phobia.name }}</td>
                 <td><button class="{% if player.is_phobia_open %}unlocked{% else %}locked{% endif %}" data-info="phobia" data-value="{{ player.phobia.name }}">{% if player.is_phobia_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Инвентарь</th>
-                <td>{{ player.inventory.name }}</td>
+                <td id="myInventory">{{ player.inventory.name }}</td>
                 <td><button class="{% if player.is_inventory_open %}unlocked{% else %}locked{% endif %}" data-info="inventory" data-value="{{ player.inventory.name }}">{% if player.is_inventory_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Дополнительные сведения</th>
                 <td>{{ player.more_information.name }}</td>
                 <td><button class="{% if player.is_more_information_open %}unlocked{% else %}locked{% endif %}" data-info="more_information" data-value="{{ player.more_information.name }}">{% if player.is_more_information_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Special Feature 1</th>
                 <td>{{ player.special_feature1.name }}</td>
-                <td><button onclick="activateFeature('{{ player.id }}', '{{ player.special_feature1.id }}', 'feature1')" class="{% if player.is_special_feature1_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature1" data-value="{{ player.special_feature1.name }}">{% if player.is_special_feature1_open %}🔓{% else %}🔒{% endif %}</button></td>
+                <td><button onclick="activateFeature('{{ player.id }}', '{{ player.special_feature1.id }}', 'feature1', '{{ player.special_feature1.name }}')" class="{% if player.is_special_feature1_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature1" data-value="{{ player.special_feature1.name }}">{% if player.is_special_feature1_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
-            <tr>
+            <tr data-player="{{ player.player_name }}">
                 <th>Special Feature 2</th>
                 <td>{{ player.special_feature2.name }}</td>
-                <td><button onclick="activateFeature('{{ player.id }}', '{{ player.special_feature2.id }}', 'feature2')" class="{% if player.is_special_feature2_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature2" data-value="{{ player.special_feature2.name }}">{% if player.is_special_feature2_open %}🔓{% else %}🔒{% endif %}</button></td>
+                <td><button onclick="activateFeature('{{ player.id }}', '{{ player.special_feature2.id }}', 'feature2', '{{ player.special_feature2.name }}')" class="{% if player.is_special_feature2_open %}unlocked{% else %}locked{% endif %}" data-info="special_feature2" data-value="{{ player.special_feature2.name }}">{% if player.is_special_feature2_open %}🔓{% else %}🔒{% endif %}</button></td>
             </tr>
         </table>
         <h3>Желающие попасть в бункер ({{ room.players.count }}/{{ bunker.capacity }})</h3>
@@ -169,7 +169,7 @@
             <button id="start-voting-btn">Начать голосование</button>
             <button id="kick_player">Вигнати гравця</button>
             <button id="end-voting-btn" style="display: none;">Завершить голосование</button>
-            <button id="end_game-btn">Закінчити гру</button>
+            <button id="end-game-btn">Закінчити гру</button>
         {% endif %}
         <div id="kickPlayerModal" class="modal" style="display:none;">
             <div class="modal-content">
@@ -222,14 +222,14 @@
             <div class="modal-content">
                 <span class="closed">&times;</span>
                 <h2>Swap ability</h2>
-                <section id="playerSwap">
-                    {% for game_player in room.player.all %}
-                        {% if game_player.player_name != player.player_name %}
+                <select id="playerSwap">
+                    {% for game_player in room.players.all %}
+                        {% if game_player.player_name != room.creator.player_name %}
                         <option value="{{ game_player.id }}">{{ game_player.player_name }}</option>
                         {% endif %}
                     {% endfor %}
-                </section>
-                <button id="confirmSwap">Swap Something</button>
+                </select>
+                <button class="confirm" id="confirmSwap">Swap Something</button>
             </div>
         </div>
     </div>
@@ -310,43 +310,44 @@
                 }
                 break;
             case 'end_game':
+                console.log("I will end game")
                 window.location.href = "{% url 'index' %}";
                 break;
             case 'inventory_swap_update':
                 console.log('Updating inventories for swap:');
-                console.log(`Player ${data.current_player} inventory changed to ${data.current_inventory}`);
-                console.log(`Player ${data.swap_player} inventory changed to ${data.swap_inventory}`);
-                swapInventory(data.current_player, data.swap_player, data.current_inventory, data.swap_inventory)
+                console.log(`Player ${data.current_player} inventory changed to ${data.current_attribute}`);
+                console.log(`Player ${data.swap_player} inventory changed to ${data.swap_attribute}`);
+                swapInventory(data.current_player, data.swap_player, data.current_attribute, data.swap_attribute)
                 break;
             case 'hobby_swap_update':
                 console.log('Updating hobby for swap:');
-                console.log(`Player ${data.current_player} hobby changed to ${data.current_hobby}`);
-                console.log(`Player ${data.swap_player} hobby changed to ${data.swap_hobby}`);
-                swapHobby(data.current_player, data.swap_player, data.current_hobby, data.swap_hobby)
+                console.log(`Player ${data.current_player} hobby changed to ${data.current_attribute}`);
+                console.log(`Player ${data.swap_player} hobby changed to ${data.swap_attribute}`);
+                swapHobby(data.current_player, data.swap_player, data.current_attribute, data.swap_attribute)
                 break;
             case 'health_swap_update':
                 console.log('Updating health for swap:');
-                console.log(`Player ${data.current_player} health changed to ${data.current_health}`);
-                console.log(`Player ${data.swap_player} health changed to ${data.swap_health}`);
-                swapHealth(data.current_player, data.swap_player, data.current_health, data.swap_health)
+                console.log(`Player ${data.current_player} health changed to ${data.current_attribute}`);
+                console.log(`Player ${data.swap_player} health changed to ${data.swap_attribute}`);
+                swapHealth(data.current_player, data.swap_player, data.current_attribute, data.swap_attribute)
                 break;
             case 'speciality_swap_update':
                 console.log('Updating speciality for swap:');
-                console.log(`Player ${data.current_player} speciality changed to ${data.current_speciality}`);
-                console.log(`Player ${data.swap_player} speciality changed to ${data.swap_speciality}`);
-                swapSpeciality(data.current_player, data.swap_player, data.current_speciality, data.swap_speciality)
+                console.log(`Player ${data.current_player} speciality changed to ${data.current_attribute}`);
+                console.log(`Player ${data.swap_player} speciality changed to ${data.swap_attribute}`);
+                swapSpeciality(data.current_player, data.swap_player, data.current_attribute, data.swap_attribute)
                 break;
             case 'phobia_swap_update':
                 console.log('Updating phobia for swap:');
-                console.log(`Player ${data.current_player} phobia changed to ${data.current_phobia}`);
-                console.log(`Player ${data.swap_player} phobia changed to ${data.swap_phobia}`);
-                swapPhobia(data.current_player, data.swap_player, data.current_phobia, data.swap_phobia)
+                console.log(`Player ${data.current_player} phobia changed to ${data.current_attribute}`);
+                console.log(`Player ${data.swap_player} phobia changed to ${data.swap_attribute}`);
+                swapPhobia(data.current_player, data.swap_player, data.current_attribute, data.swap_attribute)
                 break;
             case 'human_traits_swap_update':
                 console.log('Updating human trait for swap:');
-                console.log(`Player ${data.current_player} human trait changed to ${data.current_human_traits}`);
-                console.log(`Player ${data.swap_player} human trait changed to ${data.swap_human_traits}`);
-                swapHumanTrait(data.current_player, data.swap_player, data.current_human_traits, data.swap_human_traits)
+                console.log(`Player ${data.current_player} human trait changed to ${data.current_attribute}`);
+                console.log(`Player ${data.swap_player} human trait changed to ${data.swap_attribute}`);
+                swapHumanTrait(data.current_player, data.swap_player, data.current_attribute, data.swap_attribute)
                 break;
         }
     };
@@ -357,41 +358,43 @@
     }
 
     function swapHumanTrait(current_player, swap_player, current_human_trait, swap_human_trait){
+        $(`tr[data-player="${current_player}"] #myHumanTrait`).text(current_human_trait);
+        $(`tr[data-player="${swap_player}"] #myHumanTrait`).siblings('td').find('button').data('value', swap_human_trait);
         $(`#players-info tr[data-player="${current_player}"] td[data-info="a_human_trait"]`).text(current_human_trait);
-        // Update the inventory display for the swapped player
         $(`#players-info tr[data-player="${swap_player}"] td[data-info="a_human_trait"]`).text(swap_human_trait);
     }
 
     function swapPhobia(current_player, swap_player, current_phobia, swap_phobia){
+        $(`tr[data-player="${current_player}"] #myHumanTrait`).text(current_phobia);
+        $(`tr[data-player="${swap_player}"] #myPhobia`).siblings('td').find('button').data('value', swap_phobia);
         $(`#players-info tr[data-player="${current_player}"] td[data-info="phobia"]`).text(current_phobia);
-        // Update the inventory display for the swapped player
         $(`#players-info tr[data-player="${swap_player}"] td[data-info="phobia"]`).text(swap_phobia);
     }
-
     function swapSpeciality(current_player, swap_player, current_speciality, swap_speciality){
+        $(`tr[data-player="${current_player}"] #mySpeciality`).text(current_speciality);
+        $(`tr[data-player="${swap_player}"] #myHumanTrait`).siblings('td').find('button').data('value', swap_speciality);
         $(`#players-info tr[data-player="${current_player}"] td[data-info="speciality"]`).text(current_speciality);
-        // Update the inventory display for the swapped player
         $(`#players-info tr[data-player="${swap_player}"] td[data-info="speciality"]`).text(swap_speciality);
     }
-
     function swapHealth(current_player, swap_player, current_health, swap_health){
+        $(`tr[data-player="${current_player}"] #myHealth`).text(current_health);
+        $(`tr[data-player="${swap_player}"] #myHealth`).siblings('td').find('button').data('value', swap_health);
         $(`#players-info tr[data-player="${current_player}"] td[data-info="health"]`).text(current_health);
-        // Update the inventory display for the swapped player
         $(`#players-info tr[data-player="${swap_player}"] td[data-info="health"]`).text(swap_health);
     }
-
     function swapHobby(current_player, swap_player, current_hobby, swap_hobby){
+        $(`tr[data-player="${current_player}"] #myHobby`).text(current_hobby);
+        $(`tr[data-player="${swap_player}"] #myHobby`).siblings('td').find('button').data('value', swap_hobby);
         $(`#players-info tr[data-player="${current_player}"] td[data-info="hobby"]`).text(current_hobby);
         // Update the inventory display for the swapped player
         $(`#players-info tr[data-player="${swap_player}"] td[data-info="hobby"]`).text(swap_hobby);
     }
-
     function swapInventory(current_player, swap_player, current_inventory, swap_inventory){
-         $(`#players-info tr[data-player="${current_player}"] td[data-info="inventory"]`).text(current_inventory);
-        // Update the inventory display for the swapped player
+        $(`tr[data-player="${current_player}"] #myInventory`).text(current_inventory);
+        $(`tr[data-player="${swap_player}"] #myInventory`).siblings('td').find('button').data('value', swap_inventory);
+        $(`#players-info tr[data-player="${current_player}"] td[data-info="inventory"]`).text(current_inventory);
         $(`#players-info tr[data-player="${swap_player}"] td[data-info="inventory"]`).text(swap_inventory);
     }
-
     function removePlayerFromTables(playerName) {
         // Select and remove player rows from both tables based on data-player attribute
         $(`tr[data-player="${playerName}"]`).remove();
@@ -418,7 +421,7 @@
     }
 
 
-    function activateFeature(player_id, featureId, whichFeature) {
+    function activateFeature(player_id, featureId, whichFeature, featureName) {
         if (whichFeature === 'feature1'){
             if(specialFeature1 === true){
                 console.log("Already used")
@@ -443,21 +446,25 @@
         const swapSpeciality = "swap_speciality";
         const swapPhobias = "swap_phobia";
         const swapHumanTraits = "swap_human_traits";
-        if(featureId === inventoryChangeForOnePerson
-        || featureId === healthChangeForOnePerson
-        || featureId === specialityChangeForOnePerson
-        || featureId === hobbyChangeForOnePerson
-        || featureId === phobiasChangeForOnePerson
-        || featureId === humanTraitsForOnePerson){
+        console.log(featureId)
+        if(featureName === inventoryChangeForOnePerson
+        || featureName === healthChangeForOnePerson
+        || featureName === specialityChangeForOnePerson
+        || featureName === hobbyChangeForOnePerson
+        || featureName === phobiasChangeForOnePerson
+        || featureName === humanTraitsForOnePerson){
+            console.log("show Inventory Change Modal");
             showInventoryChangeModal(player_id, featureId);
-        }else if (featureId === swapInventory
-                || featureId === swapHobby
-                || featureId === swapHealth
-                || featureId === swapSpeciality
-                || featureId === swapPhobias
-                || featureId === swapHumanTraits){
+        }else if (featureName === swapInventory
+                || featureName === swapHobby
+                || featureName === swapHealth
+                || featureName === swapSpeciality
+                || featureName === swapPhobias
+                || featureName === swapHumanTraits){
+            console.log("swap Inventory Change Modal")
             swapInventoryChangeModal(player_id, featureId);
         }else {
+            console.log("I SEND")
             chatSocket.send(JSON.stringify({
             message: 'activate_feature',
             player_id: player_id,
@@ -473,10 +480,11 @@
 
         document.getElementById("confirmSwap").onclick = function () {
             let selectedPlayerId = document.getElementById("playerSwap").value;
+            console.log(selectedPlayerId)
             chatSocket.send(JSON.stringify({
                 message: 'activate_feature',
-                current_player: player_id,
-                swap_player: selectedPlayerId,
+                player_id: player_id,
+                swap_player_id: selectedPlayerId,
                 feature_id: feature_id,
                 room_name: roomName
             }));
@@ -489,12 +497,11 @@
     }
 
 
-    // TODO Check if it works
+
     function showInventoryChangeModal(player_id, featureId) {
         let modal = document.getElementById("changeInventoryModal");
         modal.style.display = "block";
 
-        // Налаштування кнопки підтвердження зміни
         document.getElementById("confirmInventoryChange").onclick = function() {
             let selectedPlayerId = document.getElementById("playerSelectForInventoryChange").value;
             chatSocket.send(JSON.stringify({
@@ -506,7 +513,7 @@
             modal.style.display = "none";
         };
 
-        var span = document.getElementsByClassName("close")[0];
+        let span = document.getElementsByClassName("close")[0];
         span.onclick = function() {
             modal.style.display = "none";
         }
@@ -528,34 +535,58 @@
     };
 
     function updateHumanTraitsDisplay(playerName, newHumanTraits){
-        console.log("Updating speciality for", playerName, "to", newHumanTraits);
-        $(`#players-info tr[data-player="${playerName}"] td[data-info="a_human_trait"]`).text(newHumanTraits);
+        console.log("Updating human traits for", playerName, "to", newHumanTraits);
+        $(`tr[data-player="${playerName}"] #myHumanTrait`).text(newHumanTraits);
+        $(`tr[data-player="${playerName}"] #myHumanTrait`).siblings('td').find('button').data('value', newHumanTraits);
+        if ("{{ player.is_human_trait_open }}" === "true"){
+            $(`#players-info tr[data-player="${playerName}"] td[data-info="a_human_trait"]`).text(newHumanTraits);
+        }
     }
     
     function updatePhobiasDisplay(playerName, newPhobias){
-        console.log("Updating speciality for", playerName, "to", newPhobias);
-        $(`#players-info tr[data-player="${playerName}"] td[data-info="phobia"]`).text(newPhobias);
+        console.log("Updating phobias for", playerName, "to", newPhobias);
+        $(`tr[data-player="${playerName}"] #myPhobia`).text(newPhobias);
+        $(`tr[data-player="${playerName}"] #myPhobia`).siblings('td').find('button').data('value', newPhobias);
+        if ("{{ player.is_phobia_open }}" === "true"){
+            $(`#players-info tr[data-player="${playerName}"] td[data-info="phobia"]`).text(newPhobias);
+        }
     }
 
     function updateHobbyDisplay(playerName, newHobby){
-        console.log("Updating speciality for", playerName, "to", newHobby);
-        $(`#players-info tr[data-player="${playerName}"] td[data-info="hobby"]`).text(newHobby);
+        console.log("Updating hobby for", playerName, "to", newHobby);
+        $(`tr[data-player="${playerName}"] #myHobby`).text(newHobby);
+        $(`tr[data-player="${playerName}"] #myHobby`).siblings('td').find('button').data('value', newHobby);
+        if ("{{ player.is_hobby_open }}" === "true"){
+            $(`#players-info tr[data-player="${playerName}"] td[data-info="hobby"]`).text(newHobby);
+        }
     }
 
     function updateSpecialityDisplay(playerName, newSpeciality){
         console.log("Updating speciality for", playerName, "to", newSpeciality);
-        $(`#players-info tr[data-player="${playerName}"] td[data-info="speciality"]`).text(newSpeciality);
+        $(`tr[data-player="${playerName}"] #mySpeciality`).text(newSpeciality);
+        $(`tr[data-player="${playerName}"] #mySpeciality`).siblings('td').find('button').data('value', newSpeciality);
+        if("{{ player.is_speciality_open }}" === "true"){
+            $(`#players-info tr[data-player="${playerName}"] td[data-info="speciality"]`).text(newSpeciality);
+        }
     }
 
     function updateInventoryDisplay(playerName,newInventory) {
         // Find all inventory display elements and update the one corresponding to the player and room
         console.log("Updating inventory for", playerName, "to", newInventory);
-        $(`#players-info tr[data-player="${playerName}"] td[data-info="inventory"]`).text(newInventory);
+        $(`tr[data-player="${playerName}"] #myInventory`).text(newInventory);
+        $(`tr[data-player="${playerName}"] #myInventory`).siblings('td').find('button').data('value', newInventory);
+        if ("{{ player.is_inventory_open }}" === "true"){
+            $(`#players-info tr[data-player="${playerName}"] td[data-info="inventory"]`).text(newInventory);
+        }
     }
 
     function updateHealthDisplay(playerName, newHealth) {
         console.log("Updating health for", playerName, "to", newHealth);
-        $(`#players-info tr[data-player="${playerName}"] td[data-info="health"]`).text(newHealth);
+        $(`tr[data-player="${playerName}"] #myHealth`).text(newHealth);
+        $(`tr[data-player="${playerName}"] #myHealth`).siblings('td').find('button').data('value', newHealth);
+        if("{{ player.is_health_open }}" === "true"){
+            $(`#players-info tr[data-player="${playerName}"] td[data-info="health"]`).text(newHealth);
+        }
     }
 
 function handleUpdate(data) {
@@ -727,40 +758,50 @@ function toggleSpecialFeature(playerId, featureType, isFeatureOpen) {
     }));
 }
 
-let modal = document.getElementById('kickPlayerModal');
-let btn = document.getElementById('kick_player');
-let span = document.getElementsByClassName('close')[0];
+{#let modal = document.getElementById('kickPlayerModal');#}
+{#let btn = document.getElementById('kick_player');#}
+{#let span = document.getElementsByClassName('close')[0];#}
+{##}
+{#btn.onclick = function (){#}
+{#    modal.style.display = 'block';#}
 
-btn.onclick = function (){
-    modal.style.display = 'block';
-}
+{##}
+{#span.onclick = function () {#}
+{#    modal.style.display = 'none'#}
 
-span.onclick = function () {
-    modal.style.display = 'none'
-}
+{##}
+{#window.onclick = function(event) {#}
+{#    if (event.target === modal) {#}
+{#        modal.style.display = "none";#}
+{#    }#}
 
-window.onclick = function(event) {
-    if (event.target === modal) {
-        modal.style.display = "none";
-    }
-}
-document.getElementById("confirmKickPlayer").onclick = function() {
-    let playerId = document.getElementById("kickPlayerSelect").value;
-    chatSocket.send(JSON.stringify({
-        message: 'kick_player',
-        player_id: playerId,
-    }));
-    modal.style.display = "none";
-}
+{#document.getElementById("confirmKickPlayer").onclick = function() {#}
+{#    let playerId = document.getElementById("kickPlayerSelect").value;#}
+{#    chatSocket.send(JSON.stringify({#}
+{#        message: 'kick_player',#}
+{#        player_id: playerId,#}
+{#    }));#}
+{#    modal.style.display = "none";#}
 
-$('#end-game').onclick = function () {
+
+//TODO Here doesn't work function
+{#$('#end-game-btn').onclick = function () {#}
+{#    let room_name = "{{ room.name }}";#}
+{#    console.log("I here")#}
+{#    chatSocket.send(JSON.stringify({#}
+{#        message: 'end_game',#}
+{#        room_name: room_name,#}
+{#    }));#}
+
+document.getElementById('end-game-btn').onclick = function (){
     let room_name = "{{ room.name }}";
+    console.log(room_name)
+    console.log("I here")
     chatSocket.send(JSON.stringify({
         message: 'end_game',
         room_name: room_name,
     }));
 }
-
 
 
 </script>

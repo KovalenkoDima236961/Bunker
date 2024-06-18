@@ -343,8 +343,30 @@ def vote_against_player(request):
 #     return JsonResponse({'status': 'error', 'message': 'Invalid action or state'})
 
 # TODO Check if it works
+
+# TODO треба тут зберігати ще id гравця, бо без нього це не буде робити
 def player_rooms_list(request):
-    player = request.user
+    player_name = request.session.get('player_name')
+    if not player_name:
+        return JsonResponse({"rooms": []})
+
+    try:
+        player = Player.objects.get(player_name=player_name)
+    except Player.DoesNotExist:
+        return JsonResponse({"rooms": []})
+
     rooms = Room.objects.filter(players=player)
     rooms_list = [{"name": room.name} for room in rooms]
     return JsonResponse({"rooms": rooms_list})
+
+
+def rules(request):
+    return render(request, 'rules.html')
+
+
+def about(request):
+    return render(request, 'about.html')
+
+
+def settings(request):
+    return render(request, 'settings.html')

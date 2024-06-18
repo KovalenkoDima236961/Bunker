@@ -1,10 +1,175 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Правила игры</title>
+    <link rel="stylesheet" href="{% static 'rules.css' %}">
 </head>
 <body>
+<header>
+    <div class="logo">
+        <img src="{% static 'image/logo.webp'  %}" alt="Bunker Game Logo">
+    </div>
+    <nav>
+        <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'rules' %}">Rules</a></li>
+            <li><a href="#settings">Settings</a></li>
+            <li><a href="">About developer</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <section class="rules">
+        <h1>Rules of the game</h1>
+        <p>Could you imagine what it would be like to survive a global catastrophe? I guess not. That's why "Bunker Online!" was created, so you can experience what it's like! Our game is very simple, and you won't need much time to learn the rules! Already after the first game you will fully understand how to play.</p>
+        <p>Also before starting the game we advise you to prepare a tasty tea or coffee, take biscuits and dive headfirst into the game!</p>
 
+        <h2>History</h2>
+        <p>A disaster is about to happen on earth, or maybe it has already started! I, like most people in a panic trying to survive, and find shelter to save my life. While looking for shelter, I saw a group of people, but I didn't know what to do..... Should I approach them or not, because there is danger at every turn! But since I had nothing to lose, I decided to go to them....</p>
+        <p>As soon as I started approaching people, I realised that I was incredibly lucky - all these people were near the bunker, which was my last hope! As it turned out, they were waiting for people who still managed to survive, and had set up a temporary camp.... They received me well, but I didn't know what awaited me next. All I realised was that it would have to be decided who really deserved to get into the bunker to stay alive. Those who don't get in will die. And so began my story of survival...</p>
+
+        <h2>Cataclysm</h2>
+        <p>Description of the current for the game of cataclysm. How it happened, what happened and a clear understanding of what the problems are associated with, which will make you understand in the process of the game who among the people you fit, and who needs to be kicked out.</p>
+
+        <h2>Bunker</h2>
+        <p>Description of the bunker found. The only chance to survive a cataclysmic event is to get into the bunker. You have information about the time of its construction, location and data about sleeping rooms. The following information is also available to you:</p>
+        <ul>
+            <li>The size of the bunker is the total area of the shelter.</li>
+            <li>Residence time - how long it will take you to survive a disaster.</li>
+            <li>The amount of food is the amount of food you should have for the period of your stay in the bunker. If there is not enough food or none at all, players will be forced to leave the bunker during a disaster to get food.</li>
+            <li>The bunker has - those inside the bunker that may be useful for survival.</li>
+        </ul>
+        <p>Depending on who is in the bunker, you will also have to determine which of the survivors will be more useful given the circumstances.</p>
+
+        <h2>Character Description</h2>
+        <p>Your Character Description. Your character consists of the following characteristics:</p>
+        <ul>
+            <li>Gender</li>
+            <li>Body build</li>
+            <li>A human trait</li>
+            <li>Speciality</li>
+            <li>Health</li>
+            <li>Hobby / Pastime</li>
+            <li>Phobia / Fear</li>
+            <li>Inventory</li>
+            <li>More information</li>
+            <li>Special Features #1</li>
+            <li>Special Features #2</li>
+        </ul>
+
+        <h2>Video chat</h2>
+        <p>Video chat with which players can communicate. In order to use video chat, you will be prompted at the start of the game to give permission to use your microphone and webcam in the browser. Once you give your permission, the functionality will be fully operational. If you have problems - refresh the page and try again, if not then find information on how to allow the use of microphone and webcam for your browser (Google Chrome instructions). If the problem persists - write to us! In the game you can also enable/disable webcam, microphone. Also available options like switch off all microphone, notify everyone that you want to say something and many other useful things for the game.</p>
+
+        <h2>Notes</h2>
+        <p>A place for notes to be left as you play.</p>
+
+        <h2>Presenter panel</h2>
+        <p>Presents a set of functionality for using special and professional abilities of players, as well as the ability to manage the time camp and timer.</p>
+
+        <h2>Game process</h2>
+        <p>In the first game round, everything starts with introducing each other. During the introduction process, the player reveals his main parameter - his speciality (see Character Characteristics), and characteristics depending on the number of players (see Number of players). Each player is given 1 minute to do this. After each player has revealed their parameter, the players get 1 minute of total collective discussion time (see Collective Discussion). After that, voting time takes place. Players must choose who will leave the temporary camp and not enter the bunker. It is forbidden to disclose parameters that have not yet been revealed in order to persuade players (see Voting). After voting, the next game round (round) begins. In all subsequent rounds only one parameter is revealed, regardless of the number of players.</p>
+
+        <h2>Number of players</h2>
+        <p>The number of people in the bunker is limited. Also, depending on the number of people who want to get into the bunker depends on how many characteristics you need to unlock in the first round of the game.</p>
+        <table>
+            <thead>
+            <tr>
+                <th>Number of players</th>
+                <th>Could get into the bunker</th>
+                <th>Characteristics in the first round (excluding speciality)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>6-7</td>
+                <td>3</td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td>8-9</td>
+                <td>4</td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td>10-11</td>
+                <td>5</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>12-13</td>
+                <td>6</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>14-15</td>
+                <td>7</td>
+                <td>1</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2>Game rounds</h2>
+        <p>The first round is played clockwise, starting with the first player to find the bunker. The next round the players start in the reverse order, anti-clockwise. The principle of subsequent rounds continues in this way, each new round is a new order of starting moves. When all players have made their moves, the game leader (the leader of the temporary camp) announces the results of the vote (see Voting) to remove a player from the temporary camp. This continues until there are no more players left in the bunker.</p>
+
+        <h2>Your move</h2>
+        <p>It's your turn - it's time to shine! You've been given time to introduce your character. Make the game interesting, use your imagination to the max and tell your story! Don't just read your characterisation out loud, it won't make the game interesting. Remember - you must get into the bunker by any means necessary! Depending on the number of players, you can unlock an unlimited number of characteristics in the first round of the game.</p>
+
+        <h2>Voting</h2>
+        <p>The game has a vote to remove a person from the temporary camp. Voting is a mandatory process of the game. It takes place at the end of the game round and is announced by the game leader, who is also the leader of the camp. If the majority of players decide not to vote, the voting is automatically declared closed and the players move on to the next round. In this case, in the next round, after the end of the collective discussion, the voting will take place. You can skip voting only 1 time per game! If the players decide to vote, then the game leader gives each player 30 seconds to make a statement before starting the voting. You can use the time to explain who to vote for or to protect yourself from being voted against, or you can just give a general comment. A player may refuse to speak, in which case the word passes to the next player without additional time.</p>
+        <p>After all the statements have been made, the game leader starts the voting. Players have 15 seconds to vote. All comments are finalised until the voting is completed. Players are not allowed to talk during voting. In case a player breaks the silence rule - for the next round the player loses the opportunity to speak before the voting starts. In case a player does not take part in the voting, his vote goes against himself.</p>
+        <p>When all the votes have been collected there are several options for how things will unfold:</p>
+        <ul>
+            <li>One player got more than 70% of the votes - expulsion from camp with no excuses.</li>
+            <li>One player scored the most, but the percentage is less than 70% - the player gets 30 sec. to justify.</li>
+            <li>Several players received the highest equal number of votes - each of these players gets 30 seconds to justify themselves.</li>
+        </ul>
+        <p>After each player's excuses are completed, the game leader starts a new vote with the same rules. Possible options after a new vote</p>
+        <ul>
+            <li>If among the players who got the most votes - exclude from the camp the player who got the most votes after justification.</li>
+            <li>If there is a candidate for elimination among the players who received the most votes - the new candidate for elimination gets 30 seconds to justify himself.</li>
+            <li>In case the candidates for elimination received the same number of votes - the voting is declared closed and the players move on to the next round.</li>
+        </ul>
+        <p>Each player is given 15 seconds to make a farewell speech after voting is complete. A player may use a card or just a farewell speech before leaving. During the farewell speech, it is not possible to use cards that affect the change of voting progress.</p>
+
+        <h2>Collective discussion</h2>
+        <p>During the general discussion, each player has something to say. There is no limit on each person. The general discussion lasts for 1 minute.</p>
+
+        <h2>Winning the game</h2>
+        <p>At the end of the last vote, when the right number of people to get into the bunker has been determined, the game ends. Players who get into the bunker and survive the cataclysm are considered winners! The rest of the players remain near the camp as there is no point in looking for another bunker, because the situation with the cataclysm is quite critical. Some lost hope and decided to die on the spot, now they decided to try their luck and try to survive without the bunker....</p>
+
+        <h2>Characteristics of the character</h2>
+        <p>Each character has several characteristics that he/she gets at the beginning of the game. Any of the parameters can be changed using a special feature that allows you to do so.</p>
+
+        <h2>Special opportunity</h2>
+        <p>Each special ability can be used only once per game, but at any moment of the game. Each subsequent special ability has no connection to the previous special ability, for example: if a player used the "Cancel all specialities" ability, then the third or any other player used the ability that generates a speciality for all or for a specific player. They can be used at any point in the game or depending on the description of the action.</p>
+
+        <h2>Speciality</h2>
+        <p>Speciality - there are specialities that give the character additional bonuses. They can be used at any point in the game or depending on the action description. Each speciality has its own length of service:</p>
+        <ul>
+            <li>Amateur - up to 1 month</li>
+            <li>Beginner - 1 to 4 months</li>
+            <li>Novice - 5 months to 1 year old</li>
+            <li>Lover - 1 to 2 years</li>
+            <li>Experienced - 2 to 5 years</li>
+            <li>Expert - 5 to 10 years</li>
+            <li>Professional - from 10 years</li>
+        </ul>
+        <p>Childfree - a person's status in which he or she is categorically opposed to any participation in procreation. A person will not participate in the continuation of birth by his/her own will. In an attempt to force or change his mind, a person may suffer irreparable psychological trauma. If a woman is 50 years old or older - she cannot have children. If the physique is "Fragile" or "Obesity-strong" - she will be able to give birth only with the help of specialists (certain professions) who can solve problems with childbirth. If a man is 60 years old or older - he cannot have children. If the physique is "Obesity-strong" - she can only have a chance to give birth with the help of specialists (certain professions). Also, if a man's age is more than 45 years, the chance that the child will be healthy decreases.</p>
+        <p>The following life stages are present: young, adult and elderly. The Health characteristic has different degrees of problems: mild, medium, severe and critical. The level of hobbies is assessed as follows:</p>
+        <ul>
+            <li>Amateur - up to 1 month</li>
+            <li>Beginner - 1 to 4 months</li>
+            <li>Novice - 5 months to 1 year old</li>
+            <li>Lover - 1 to 2 years</li>
+            <li>Advanced - 2 to 5 years</li>
+            <li>Master (guru) - more than 5 years</li>
+        </ul>
+    </section>
+</main>
+<footer>
+    © 2024 Bunker Game. All rights reserved.
+</footer>
 </body>
 </html>

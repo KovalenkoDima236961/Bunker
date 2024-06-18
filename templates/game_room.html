@@ -14,9 +14,10 @@
     </div>
     <nav>
         <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#rules">Rules</a></li>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'rules' %}">Rules</a></li>
             <li><a href="#settings">Settings</a></li>
+            <li><a href="{% url 'about' %}">About developer</a></li>
         </ul>
     </nav>
 </header>

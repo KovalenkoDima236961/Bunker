@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings - Post-Apocalyptic Style</title>
+    <link rel="stylesheet" href="{% static 'settings.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<header>
+    <div class="logo">
+        <img src="{% static 'image/logo.webp' %}" alt="Bunker Game Logo">
+    </div>
+    <nav>
+        <ul>
+            <li><a href="{% url 'index' %}">Home</a></li>
+            <li><a href="{% url 'rules' %}">Rules</a></li>
+            <li><a href="{% url 'settings' %}">Settings</a></li>
+            <li><a href="{% url 'about' %}">About developer</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <div class="content">
+        <h1>Settings</h1>
+        <div class="setting">
+            <label for="volume">Music Volume:</label>
+            <input type="range" id="volume" name="volume" min="0" max="100" value="50">
+        </div>
+        <div class="setting">
+            <label for="music-toggle">Music:</label>
+            <button id="music-toggle" onclick="toggleMusic()">Turn On</button>
+        </div>
+    </div>
+    <audio id="background-music" loop>
+        <source src="{% static 'music/music.mp3' %}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+</main>
+<script>
+    // Function to toggle music play/pause
+    function toggleMusic() {
+        const audio = document.getElementById('background-music');
+        const isMusicOn = localStorage.getItem('isMusicOn') === 'true';
+        if (isMusicOn) {
+            audio.pause();
+            localStorage.setItem('isMusicOn', 'false');
+        } else {
+            audio.play();
+            localStorage.setItem('isMusicOn', 'true');
+        }
+    }
+
+    // Function to set volume
+    function setVolume(volume) {
+        const audio = document.getElementById('background-music');
+        audio.volume = volume / 100;
+        localStorage.setItem('volume', volume);
+    }
+
+    // Initialize audio settings on page load
+    $(document).ready(function() {
+        const audio = document.getElementById('background-music');
+        const isMusicOn = localStorage.getItem('isMusicOn') === 'true';
+        const volume = localStorage.getItem('volume') || 50;
+
+        audio.volume = volume / 100;
+        if (isMusicOn) {
+            audio.play();
+        }
+
+        // Attach event listener for volume control
+        $('#volume').on('input', function() {
+            setVolume(this.value);
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #202020;
+    color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    background-image: url('image/background.webp');
+    background-size: cover;
+}
+
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+}
+
+.logo img {
+    height: 50px; /* Adjust based on your logo's dimensions */
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin: 0 10px;
+}
+
+nav ul li a {
+    color: #f0f0f0;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Aligns children (sections) centrally */
+    justify-content: center;
+    padding: 40px 0; /* Adds vertical padding for better spacing */
+    min-height: 100vh; /* Ensures the main area covers at least the viewport height */
+}
+
+section {
+    width: 100%; /* Full width to align with the design */
+    max-width: 600px; /* Max-width for better control on larger screens */
+    margin: 10px 0; /* Adds top and bottom margin for spacing */
+}
+
+
+
+.create-room, .join-room, .ongoing-games {
+    width: 100%;
+    max-width: 600px; /* Adjusts the max width for better control */
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Adds subtle shadow for depth */
+    box-sizing: border-box; /* Includes padding and border in the width */
+}
+
+section h1 {
+    color: #cc8800;
+    text-align: center; /* Ensures the heading is centered */
+}
+
+input[type="text"], input[type="submit"], button {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin: 10px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #555;
+    color: #DDD;
+    font-family: 'Courier New', monospace;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+
+button,input[type="submit"] {
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: 1px solid #666; /* Slightly lighter border for depth */
+}
+
+button:hover,input[type="submit"] {
+    background-color: #444; /* Lighter background on hover for interaction feedback */
+    border-color: #777; /* Lighter border on hover */
+}
+
+input[type="text"]:focus, button:focus,  input[type="submit"]:focus {
+    outline: none;
+    border-color: #cc8800; /* Highlight focus with a thematic color */
+    box-shadow: 0 0 8px #cc8800; /* Glowing effect for focus */
+}
+label {
+    display: block;
+    color: #ffcc00;
+    margin-bottom: 5px;
+}
+input[type="text"]::placeholder {
+    color: #bbb; /* Placeholder text color */
+}
+
+footer {
+    width: 100%; /* Ensures footer spans across the width */
+    text-align: center; /* Centers the text inside footer */
+}

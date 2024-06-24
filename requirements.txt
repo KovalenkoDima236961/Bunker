@@ -1,0 +1,4 @@
+Django>=5
+gunicorn
+channels
+daphne

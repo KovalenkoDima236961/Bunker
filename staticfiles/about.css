@@ -1,0 +1,137 @@
+body {
+    background: url('image/background.webp') no-repeat center center fixed;
+    background-size: cover;
+    color: #d4d4d4;
+    font-family: 'Special Elite', cursive;
+    margin: 0;
+    padding: 0;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+}
+
+.logo img {
+    height: 50px; /* Adjust based on your logo's dimensions */
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin: 0 10px;
+}
+
+nav ul li a {
+    color: #f0f0f0;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #555;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+}
+
+h1, h2 {
+    font-family: 'Cinzel', serif;
+    margin-bottom: 20px;
+    color: #f2a365;
+}
+
+h1 {
+    text-align: center;
+    text-shadow: 2px 2px 5px #000;
+}
+
+p {
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 3px #000;
+}
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #555;
+    margin: 0 auto 20px;
+    display: block;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.skills, .interests {
+    list-style-type: none;
+    padding: 0;
+}
+
+.skills li, .interests li {
+    background: rgba(50, 50, 50, 0.8);
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #777;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.github-button {
+    display: block;
+    width: 200px;
+    margin: 20px auto;
+    padding: 15px;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: #f2f2f2;
+    text-decoration: none;
+    background: linear-gradient(145deg, #333, #222);
+    border: 2px solid #444;
+    border-radius: 10px;
+    box-shadow: inset 2px 2px 5px #000, 3px 3px 10px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.github-button:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%) rotate(45deg);
+    transition: all 0.3s ease;
+    z-index: 0;
+}
+
+.github-button:hover:before {
+    width: 0;
+    height: 0;
+}
+
+.github-button:after {
+    content: 'GitHub';
+    position: relative;
+    z-index: 1;
+}
+
+.github-button:active {
+    background: linear-gradient(145deg, #222, #111);
+    box-shadow: inset 2px 2px 5px #000, 1px 1px 5px rgba(0, 0, 0, 0.5);
+    transform: scale(0.98);
+}

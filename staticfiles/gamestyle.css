@@ -1,0 +1,114 @@
+/* lobby.css */
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #202020;
+    color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    background-image: url('image/background.webp');
+    background-size: cover;
+}
+
+header {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo img {
+    height: 50px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    color: #f0f0f0;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+main {
+    width: 60%;
+    margin: 50px auto;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.lobby h1 {
+    color: #ffcc00;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#playerList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#playerList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.remove-btn {
+    background-color: #ff6666;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.remove-btn:hover {
+    background-color: #ff3333;
+}
+
+.control-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.control-buttons button {
+    width: 48%;
+    padding: 10px;
+    background-color: #666;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.control-buttons button:hover {
+    background-color: #777;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #f0f0f0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
